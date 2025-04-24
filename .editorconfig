@@ -5,7 +5,7 @@ end_of_line = crlf
 trim_trailing_whitespace = false
 insert_final_newline = false
 indent_style = space
-indent_size = 4
+indent_size = 3
 
 # Microsoft .NET properties
 csharp_new_line_before_members_in_object_initializers = false
@@ -76,8 +76,8 @@ indent_size = 3
 
 [*.{appxmanifest,asax,ascx,aspx,axaml,blockshader,build,c,c++,c++m,cc,ccm,cginc,compute,cp,cpp,cppm,cshtml,cu,cuh,cxx,cxxm,dtd,fs,fsi,fsscript,fsx,fx,fxh,h,h++,hh,hlsl,hlsli,hlslinc,hp,hpp,hxx,icc,inc,inl,ino,ipp,ixx,master,ml,mli,mpp,mq4,mq5,mqh,mxx,nuspec,paml,razor,resw,resx,shader,shaderFoundry,skin,tcc,tpp,urtshader,usf,ush,uxml,vb,xaml,xamlx,xoml,xsd}]
 indent_style = space
-indent_size = 4
-tab_width = 4
+indent_size = 3
+tab_width = 3
 
 [*.cs]
 csharp_style_prefer_primary_constructors = false
