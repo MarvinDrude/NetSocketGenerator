@@ -6,10 +6,16 @@ global using System.Buffers;
 global using System.Collections.Concurrent;
 global using System.Runtime.InteropServices;
 global using System.Threading.Channels;
+global using System.Security.Cryptography.X509Certificates;
+global using System.Net;
+global using System.Net.Security;
 
+global using NetSocketGenerator.Enums;
 global using NetSocketGenerator.Extensions;
 global using NetSocketGenerator.Helpers;
 global using NetSocketGenerator.Internal.Options;
 global using NetSocketGenerator.Internal.Factories;
 global using NetSocketGenerator.Internal.Settings;
-
+global using NetSocketGenerator.Tcp.Interfaces;
+global using NetSocketGenerator.Tcp.Frames;
+global using NetSocketGenerator.Events;
