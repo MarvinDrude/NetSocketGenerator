@@ -9,7 +9,7 @@
 /// settings such as memory pool allocation, pipe scheduling, and buffer constraints for read and write operations.
 /// </remarks>
 /// <seealso cref="ConnectionOptions"/>
-internal sealed class SocketConnectionOptions : ConnectionOptions
+public sealed class SocketConnectionOptions : ConnectionOptions
 {
    /// <summary>
    /// Creates and configures connection queue settings tailored for socket-based connections.
@@ -18,7 +18,7 @@ internal sealed class SocketConnectionOptions : ConnectionOptions
    /// A configured instance of <see cref="ConnectionQueueSettings"/> containing memory pool,
    /// scheduler, and pipe options for managing buffer sizes and synchronization behavior.
    /// </returns>
-   public override ConnectionQueueSettings CreateQueueSettings() 
+   internal override ConnectionQueueSettings CreateQueueSettings() 
    {
       var memoryPool = new PinnedBlockMemoryPool();
       var scheduler = new IoQueue();

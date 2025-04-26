@@ -28,7 +28,9 @@ internal sealed class SocketConnectionFactory
    /// <param name="stream">An optional <see cref="Stream"/> wrapping the socket for additional processing or transport.</param>
    /// <param name="settings">The <see cref="SocketConnectionQueueSettings"/> that configure connection behavior, including memory pooling and scheduling.</param>
    /// <returns>A new instance of <see cref="SocketConnection"/> configured with the specified parameters.</returns>
-   protected override SocketConnection CreateConnection(Socket socket, Stream? stream,
+   protected override SocketConnection CreateConnection(
+      Socket socket, 
+      Stream? stream,
       SocketConnectionQueueSettings settings)
    {
       return new SocketConnection(

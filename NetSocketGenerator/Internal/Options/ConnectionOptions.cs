@@ -4,7 +4,7 @@
 /// Represents the base set of configurable options for connection management in networking operations.
 /// This class is designed to be extended to define specific connection behavior and constraints.
 /// </summary>
-internal abstract class ConnectionOptions
+public abstract class ConnectionOptions
 {
    /// <summary>
    /// Gets or sets the number of IO queues to be used for connection processing.
@@ -37,5 +37,5 @@ internal abstract class ConnectionOptions
    /// the configurations for connection queue settings such as buffer sizes,
    /// memory pool, and scheduler properties.
    /// </returns>
-   public abstract ConnectionQueueSettings CreateQueueSettings(); 
+   internal abstract ConnectionQueueSettings CreateQueueSettings(); 
 }
