@@ -19,3 +19,5 @@ global using NetSocketGenerator.Internal.Settings;
 global using NetSocketGenerator.Tcp.Interfaces;
 global using NetSocketGenerator.Tcp.Frames;
 global using NetSocketGenerator.Events;
+global using NetSocketGenerator.Events.Delegates;
+global using NetSocketGenerator.Internal;

@@ -5,6 +5,10 @@ VisualStudioVersion = 17.13.35931.197 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetSocketGenerator", "NetSocketGenerator\NetSocketGenerator.csproj", "{51E36438-BCB8-4BCE-8014-3BB59B86A6D5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetSocketGenerator.SimpleExample", "NetSocketGenerator.SimpleExample\NetSocketGenerator.SimpleExample.csproj", "{E3644B6C-592B-44BB-8E29-5E44853B7463}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{A7206109-E848-4646-A607-EC559CB9CC54}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,11 +19,18 @@ Global
 		{51E36438-BCB8-4BCE-8014-3BB59B86A6D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51E36438-BCB8-4BCE-8014-3BB59B86A6D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51E36438-BCB8-4BCE-8014-3BB59B86A6D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3644B6C-592B-44BB-8E29-5E44853B7463}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3644B6C-592B-44BB-8E29-5E44853B7463}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3644B6C-592B-44BB-8E29-5E44853B7463}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3644B6C-592B-44BB-8E29-5E44853B7463}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {177F00DA-09B3-4B8A-89F6-E46462B306C5}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E3644B6C-592B-44BB-8E29-5E44853B7463} = {A7206109-E848-4646-A607-EC559CB9CC54}
 	EndGlobalSection
 EndGlobal

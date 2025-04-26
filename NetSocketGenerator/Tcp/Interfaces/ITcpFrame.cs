@@ -56,4 +56,36 @@ public interface ITcpFrame : IDisposable
    /// </summary>
    /// <param name="buffer">A reference to the span of bytes where the TCP frame data will be written to.</param>
    public void Write(ref Span<byte> buffer);
+
+   /// <summary>
+   /// Sends the current TCP frame data through the given duplex pipe.
+   /// </summary>
+   /// <param name="pipe">The duplex pipe used for transmitting the TCP frame data.</param>
+   public void Send(IDuplexPipe pipe)
+   {
+      var binarySize = GetRawSize();
+
+      if (binarySize <= TcpConstants.SafeStackBufferSize)
+      {
+         Span<byte> buffer = stackalloc byte[binarySize];
+         Write(ref buffer);
+         
+         pipe.Output.Write(buffer);
+         return;
+      }
+      
+      var rented = ArrayPool<byte>.Shared.Rent(binarySize);
+
+      try
+      {
+         var span = rented.AsSpan()[..binarySize];
+         Write(ref span);
+
+         pipe.Output.Write(span);
+      }
+      finally
+      {
+         ArrayPool<byte>.Shared.Return(rented);
+      }
+   }
 }

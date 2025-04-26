@@ -18,6 +18,8 @@ public sealed class TcpServer
    private readonly EndPoint _endPoint;
    private readonly TcpServerOptions _options;
    
+   private readonly ServerFrameDispatcher _frameDispatcher = new();
+   
    public TcpServer(TcpServerOptions options)
    {
       if (options is { IsSecure: true, Certificate: null })
@@ -73,19 +75,44 @@ public sealed class TcpServer
          TaskScheduler.Default);
    }
 
-   public void Stop()
+   /// <summary>
+   /// Stops the TCP server, releasing all resources associated with it and terminating any ongoing operations.
+   /// </summary>
+   /// <remarks>
+   /// This method halts the server by canceling the accept loop and shutting down any active connections.
+   /// It clears the internal connection dictionary, cancels the ongoing cancellation token, and disposes of the main socket.
+   /// If the server is not running, the method simply exits. Upon stopping, the server can be restarted if needed by calling the Start method.
+   /// </remarks>
+   public async Task Stop()
    {
       if (_runTokenSource is null)
       {
          return;
       }
       
-      _runTokenSource.Cancel();
+      _connections.Clear();
+      
+      await _runTokenSource.CancelAsync();
       _runTokenSource.Dispose();
+      
       _runTokenSource = null;
+
+      foreach (var connection in _connections.Values)
+      {
+         await connection.DisposeAsync();
+      }
       
-      
+      try
+      {
+         _socket?.Shutdown(SocketShutdown.Both);
+      }
+      catch (Exception) { /* ignore */ }
+
+      _socket?.Dispose();
+      _socket = null;
    }
+   
+   
 
    /// <summary>
    /// Continuously accepts incoming TCP connections and initiates the receive loop for each connection until the operation is canceled.
@@ -105,10 +132,18 @@ public sealed class TcpServer
             continue;
          }
 
+         _connections.TryAdd(connection.Id, connection);
          _ = RunReceive(connection, token);
       }
    }
 
+   /// <summary>
+   /// Handles the process of receiving data from a TCP connection. This method reads incoming data,
+   /// processes it into logical frames, and dispatches those frames for further handling.
+   /// </summary>
+   /// <param name="connection">The TCP connection instance from which data will be received.</param>
+   /// <param name="token">A cancellation token used to observe cancellation requests for the receive loop.</param>
+   /// <returns>An asynchronous task representing the receive operation.</returns>
    private async Task RunReceive(TcpServerConnection connection, CancellationToken token)
    {
       if (ConnectionType is TcpConnectionType.FastSocket)
@@ -126,9 +161,10 @@ public sealed class TcpServer
       try
       {
          while (!token.IsCancellationRequested 
+                && !connection.DisconnectTokenSource.IsCancellationRequested
                 && connection.Pipe is not null)
          {
-            var result = await connection.Pipe.Input.ReadAsync(token);
+            var result = await connection.Pipe.Input.ReadAsync(connection.DisconnectTokenSource.Token);
             var buffer = result.Buffer;
             var position = frame.Read(ref buffer);
 
@@ -137,7 +173,8 @@ public sealed class TcpServer
                continue;
             }
 
-            
+            await _frameDispatcher.Dispatch(frame, connection);
+            connection.Pipe.Input.AdvanceTo(position);
             
             frame.Dispose();
             frame = _frameFactory.Create();
@@ -148,13 +185,31 @@ public sealed class TcpServer
          frame?.Dispose();
          await connection.DisposeAsync();
 
-         
+         _connections.TryRemove(connection.Id, out _);
       }
    }
 
    private async Task RunSend(TcpServerConnection connection, CancellationToken token)
    {
-      
+      while (!token.IsCancellationRequested
+             && await connection.SendChannel.Reader.WaitToReadAsync(token)
+             && connection.Pipe is not null)
+      {
+         try
+         {
+            var frame = await connection.SendChannel.Reader.ReadAsync(token);
+
+            if (!frame.IsForSending || frame.Data.Length == 0)
+            {
+               continue;
+            }
+
+            
+            
+            await connection.Pipe.Output.FlushAsync(token);
+         }
+         catch (Exception) { /* ignored */}
+      }
    }
 
    /// <summary>
