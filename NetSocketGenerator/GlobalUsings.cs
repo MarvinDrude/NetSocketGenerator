@@ -9,6 +9,9 @@ global using System.Threading.Channels;
 global using System.Security.Cryptography.X509Certificates;
 global using System.Net;
 global using System.Net.Security;
+global using System.Security.Authentication;
+global using System.Text;
+global using System.Buffers.Binary;
 
 global using NetSocketGenerator.Enums;
 global using NetSocketGenerator.Extensions;

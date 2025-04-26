@@ -1,8 +1,15 @@
 ﻿
-using System.Security.Authentication;
-
 namespace NetSocketGenerator.Tcp;
 
+/// <summary>
+/// Represents a TCP server that manages incoming TCP connections and provides methods
+/// to start and stop the server.
+/// </summary>
+/// <remarks>
+/// The TcpServer class is designed to handle TCP connections using configurable options.
+/// It manages the lifecycle of the server, including binding to an endpoint,
+/// handling multiple connections, and providing a secure or insecure communication layer.
+/// </remarks>
 public sealed class TcpServer
 {
    public TcpConnectionType ConnectionType { get; }
@@ -111,8 +118,6 @@ public sealed class TcpServer
       _socket?.Dispose();
       _socket = null;
    }
-   
-   
 
    /// <summary>
    /// Continuously accepts incoming TCP connections and initiates the receive loop for each connection until the operation is canceled.
@@ -189,6 +194,16 @@ public sealed class TcpServer
       }
    }
 
+   /// <summary>
+   /// Handles sending data from the server to a connected client through the specified connection.
+   /// </summary>
+   /// <remarks>
+   /// This method continuously processes and sends frames from the connection's send channel
+   /// to the underlying pipe until the operation is canceled or the connection is terminated.
+   /// </remarks>
+   /// <param name="connection">The TCP server connection representing the client to which data will be sent.</param>
+   /// <param name="token">The cancellation token used to abort the sending operation if required.</param>
+   /// <returns>A task that represents the asynchronous operation.</returns>
    private async Task RunSend(TcpServerConnection connection, CancellationToken token)
    {
       while (!token.IsCancellationRequested
@@ -204,8 +219,7 @@ public sealed class TcpServer
                continue;
             }
 
-            
-            
+            frame.Send(connection.Pipe);
             await connection.Pipe.Output.FlushAsync(token);
          }
          catch (Exception) { /* ignored */}

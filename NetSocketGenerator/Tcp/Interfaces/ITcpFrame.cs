@@ -25,6 +25,7 @@ public interface ITcpFrame : IDisposable
    /// This property determines if the frame bypasses higher-level processing
    /// and is handled strictly as raw byte content.
    /// </summary>
+   [MemberNotNullWhen(false, nameof(Identifier))]
    public bool IsRawOnly { get; set; }
 
    /// <summary>
