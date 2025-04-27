@@ -30,24 +30,20 @@ public sealed class TcpFrame : ITcpFrame
    {
       if (IsRawOnly)
       {
-         return 1 + Data.Length;
+         return 1 + 4 + Data.Length;
       }
       
-      return 1 + Encoding.UTF8.GetByteCount(Identifier) + Data.Length;
+      return 1 + 4 + 4 + Encoding.UTF8.GetByteCount(Identifier) + Data.Length;
    }
    
-   public void Write(ref Span<byte> buffer)
+   public void Write(ref Span<byte> input)
    {
+      var buffer = input;
+      
       buffer[0] = (byte)(IsRawOnly ? 1 : 0);
       buffer = buffer[1..];
 
-      if (IsRawOnly)
-      {
-         Data.Span.CopyTo(buffer);
-         return;
-      }
-      
-      Span<byte> idSpan = Encoding.UTF8.GetBytes(Identifier); // TODO: could be faster maybe
+      Span<byte> idSpan = Encoding.UTF8.GetBytes(Identifier ?? string.Empty); // TODO: could be faster maybe
       
       BinaryPrimitives.WriteInt32BigEndian(buffer[..4], idSpan.Length);
       buffer = buffer[4..];
@@ -65,49 +61,80 @@ public sealed class TcpFrame : ITcpFrame
    {
       var reader = new SequenceReader<byte>(buffer);
       
-      if (!reader.TryRead(out var rawFlag))
+      if (_parseStep == ParseStep.BeforeRaw)
       {
-         return reader.Position;
-      }
-      
-      IsRawOnly = rawFlag == 1;
-      var sizeRequired = GetRawSize() - 1;
-
-      if (reader.Remaining < sizeRequired)
-      {
-         return reader.Position;
-      }
-
-      if (IsRawOnly)
-      {
-         Memory<byte> memory = new byte[sizeRequired];
-         Data = memory;
+         if (reader.Remaining < 1)
+         {
+            return reader.Position;
+         }
          
-         reader.TryCopyTo(memory.Span);
-         reader.Advance(memory.Span.Length);
+         reader.TryRead(out var isRawOnly);
+         IsRawOnly = isRawOnly == 1;
          
+         _parseStep = ParseStep.AfterRaw;
+      }
+
+      if (_parseStep == ParseStep.AfterRaw)
+      {
+         if (reader.Remaining < 4)
+         {
+            return reader.Position;
+         }
+
+         reader.TryReadBigEndian(out _idLength);
+         _parseStep = ParseStep.Id;
+      }
+
+      if (_parseStep == ParseStep.Id)
+      {
+         if (reader.Remaining < _idLength)
+         {
+            return reader.Position;
+         }
+
+         if (_idLength > 0)
+         {
+            if (_idLength > TcpConstants.SafeStackBufferSize)
+               throw new InvalidOperationException();
+         
+            Span<byte> idSpan = stackalloc byte[_idLength];
+
+            reader.TryCopyTo(idSpan);
+            reader.Advance(_idLength);
+         
+            Identifier = Encoding.UTF8.GetString(idSpan);
+         }
+         
+         _parseStep = ParseStep.DataLength;
+      }
+
+      if (_parseStep == ParseStep.DataLength)
+      {
+         if (reader.Remaining < 4)
+         {
+            return reader.Position;
+         }
+         
+         reader.TryReadBigEndian(out _dataLength);
+         _parseStep = ParseStep.Data;
+      }
+
+      if (_parseStep == ParseStep.Data)
+      {
+         if (reader.Remaining < _dataLength)
+         {
+            return reader.Position;
+         }
+         
+         Memory<byte> payload = new byte[_dataLength];
+         Data = payload;
+         
+         reader.TryCopyTo(payload.Span);
+         reader.Advance(payload.Span.Length);
+         
+         _parseStep = ParseStep.Finish;
          IsComplete = true;
-         return reader.Position;
       }
-      
-      reader.TryReadBigEndian(out int idLength);
-      
-      if (idLength is > TcpConstants.SafeStackBufferSize or < 1)
-         throw new InvalidOperationException();
-      
-      Span<byte> idSpan = stackalloc byte[idLength];
-
-      reader.TryCopyTo(idSpan);
-      reader.Advance(idSpan.Length);
-      Identifier = Encoding.UTF8.GetString(idSpan);
-      
-      reader.TryReadBigEndian(out int dataLength);
-      
-      Memory<byte> payload = new byte[dataLength];
-      Data = payload;
-         
-      reader.TryCopyTo(payload.Span);
-      reader.Advance(payload.Span.Length);
 
       return reader.Position;
    }
@@ -115,5 +142,19 @@ public sealed class TcpFrame : ITcpFrame
    public void Dispose()
    {
       
+   }
+
+   private ParseStep _parseStep = ParseStep.BeforeRaw;
+   private int _idLength;
+   private int _dataLength;
+   
+   private enum ParseStep
+   {
+      BeforeRaw = 1,
+      AfterRaw = 2,
+      Id = 3,
+      DataLength = 4,
+      Data = 5,
+      Finish = 6
    }
 }

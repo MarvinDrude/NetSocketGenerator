@@ -160,6 +160,8 @@ internal sealed class SocketConnection : IDuplexPipe, IAsyncDisposable
 
       Input = Receiver.Pipe.Reader;
       Output = Sender.Pipe.Writer;
+
+      Start();
    }
 
    /// <summary>

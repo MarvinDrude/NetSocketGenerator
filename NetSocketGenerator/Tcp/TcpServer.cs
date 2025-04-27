@@ -224,7 +224,7 @@ public sealed class TcpServer
             frame.Send(connection.Pipe);
             await connection.Pipe.Output.FlushAsync(token);
          }
-         catch (Exception) { /* ignored */}
+         catch (Exception) { /* ignored */ }
       }
    }
 

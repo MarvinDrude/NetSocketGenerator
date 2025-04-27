@@ -54,13 +54,23 @@ public sealed class TcpClient : ITcpConnection
       _frameFactory = new TcpFrameFactory();
    }
    
+   public void SendFrame<TFrame>(string identifier, string rawData)
+      where TFrame : ITcpFrame, new()
+   {
+      Send(new TFrame()
+      {
+         Identifier = identifier,
+         IsForSending = true,
+         Data = Encoding.UTF8.GetBytes(rawData)
+      });
+   }
+   
    public void SendFrame<TFrame>(string identifier, ReadOnlyMemory<byte> rawData)
       where TFrame : ITcpFrame, new()
    {
       Send(new TFrame()
       {
          Identifier = identifier,
-         IsRawOnly = true,
          IsForSending = true,
          Data = rawData
       });
@@ -216,6 +226,8 @@ public sealed class TcpClient : ITcpConnection
             {
                await _options.Events.OnConnected(this);
             }
+
+            return;
          }
          catch (Exception) { /* ignore */ }
 
@@ -297,11 +309,15 @@ public sealed class TcpClient : ITcpConnection
             {
                continue;
             }
-            
+
             frame.Send(_pipe);
             await _pipe.Output.FlushAsync(token);
          }
-         catch (Exception) { /* ignored */}
+         catch (Exception er)
+         {
+             /* ignored */
+             _ = er;
+         }
       }
    }
 

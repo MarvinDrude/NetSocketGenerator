@@ -22,13 +22,23 @@ public sealed class TcpServerConnection
 
    private bool _disposed;
 
+   public void SendFrame<TFrame>(string identifier, string rawData)
+      where TFrame : ITcpFrame, new()
+   {
+      Send(new TFrame()
+      {
+         Identifier = identifier,
+         IsForSending = true,
+         Data = Encoding.UTF8.GetBytes(rawData)
+      });
+   }
+   
    public void SendFrame<TFrame>(string identifier, ReadOnlyMemory<byte> rawData)
       where TFrame : ITcpFrame, new()
    {
       Send(new TFrame()
       {
          Identifier = identifier,
-         IsRawOnly = true,
          IsForSending = true,
          Data = rawData
       });
