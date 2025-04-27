@@ -78,7 +78,7 @@ public sealed class PingHandler
 //    client.Connect();
 // }
 
-while (true)
-{
-   await Task.Delay(1_000);
-}
+// while (true)
+// {
+//    await Task.Delay(1_000);
+// }
