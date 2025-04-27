@@ -53,6 +53,33 @@ public sealed class TcpClient : ITcpConnection
       _connectionFactory = TcpServer.CreateFactory(ConnectionType, options);
       _frameFactory = new TcpFrameFactory();
    }
+
+   public void Send(string identifier, string rawData)
+   {
+      Send(identifier, Encoding.UTF8.GetBytes(rawData));
+   }
+   
+   public void Send(string identifier, ReadOnlyMemory<byte> rawData)
+   {
+      var frame = _frameFactory.Create();
+
+      frame.Identifier = identifier;
+      frame.IsForSending = true;
+      frame.Data = rawData;
+      
+      Send(frame);
+   }
+   
+   public void Send<T>(string identifier, T data)
+   {
+      var frame = _frameFactory.Create();
+
+      frame.Identifier = identifier;
+      frame.IsForSending = true;
+      frame.Data = _options.Serializer.SerializeAsMemory(data);
+      
+      Send(frame);
+   }
    
    public void SendFrame<TFrame>(string identifier, string rawData)
       where TFrame : ITcpFrame, new()

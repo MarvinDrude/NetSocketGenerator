@@ -236,6 +236,8 @@ internal sealed class SocketConnection : IDuplexPipe, IAsyncDisposable
    /// <returns>A <see cref="ValueTask"/> that completes when the dispose operation is finished.</returns>
    public async ValueTask DisposeAsync()
    {
+      Shutdown();
+      
       await Receiver.DisposeAsync();
       await Sender.DisposeAsync();
    }

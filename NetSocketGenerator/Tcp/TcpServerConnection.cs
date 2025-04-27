@@ -22,6 +22,33 @@ public sealed class TcpServerConnection
 
    private bool _disposed;
 
+   public void Send(string identifier, string rawData)
+   {
+      Send(identifier, Encoding.UTF8.GetBytes(rawData));
+   }
+   
+   public void Send(string identifier, ReadOnlyMemory<byte> rawData)
+   {
+      var frame = Server.FrameFactory.Create();
+
+      frame.Identifier = identifier;
+      frame.IsForSending = true;
+      frame.Data = rawData;
+      
+      Send(frame);
+   }
+   
+   public void Send<T>(string identifier, T data)
+   {
+      var frame = Server.FrameFactory.Create();
+
+      frame.Identifier = identifier;
+      frame.IsForSending = true;
+      frame.Data = Server.Options.Serializer.SerializeAsMemory(data);
+      
+      Send(frame);
+   }
+   
    public void SendFrame<TFrame>(string identifier, string rawData)
       where TFrame : ITcpFrame, new()
    {

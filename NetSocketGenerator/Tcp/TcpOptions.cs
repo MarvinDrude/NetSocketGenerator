@@ -73,4 +73,14 @@ public class TcpOptions
    /// during the corresponding events and allow for custom behavior to be defined.
    /// </remarks>
    public TcpEventCallbacks Events { get; init; } = new();
+
+   /// <summary>
+   /// Gets the serializer responsible for serializing and deserializing data for the TCP connection.
+   /// </summary>
+   /// <remarks>
+   /// This property specifies the implementation of <c>ITcpSerializer</c> to be used for converting
+   /// objects to byte sequences during transmission and vice versa upon reception. A suitable
+   /// serializer matching the application's requirements should be provided.
+   /// </remarks>
+   public ITcpSerializer Serializer { get; init; } = new TcpDynamicJsonSerializer();
 }

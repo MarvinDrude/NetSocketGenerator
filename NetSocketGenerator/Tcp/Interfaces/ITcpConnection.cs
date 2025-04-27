@@ -5,6 +5,29 @@ public interface ITcpConnection
    public Guid Id { get; }
 
    /// <summary>
+   /// Sends data over the current TCP connection.
+   /// </summary>
+   /// <param name="identifier">The unique identifier for the data being sent.</param>
+   /// <param name="rawData">The raw data to send as a string.</param>
+   public void Send(string identifier, string rawData);
+
+   /// <summary>
+   /// Sends data over the current TCP connection.
+   /// </summary>
+   /// <param name="identifier">The unique identifier for the data being sent.</param>
+   /// <param name="rawData">The raw data to send as a read-only memory buffer.</param>
+   public void Send(string identifier, ReadOnlyMemory<byte> rawData);
+
+   /// <summary>
+   /// Sends data over the current TCP connection. The type of data is specified by the generic type parameter.
+   /// This method serializes the data with the default serializer.
+   /// </summary>
+   /// <typeparam name="T">The type of data to send.</typeparam>
+   /// <param name="identifier">The unique identifier for the data being sent.</param>
+   /// <param name="data">The data to be serialized and then sent.</param>
+   public void Send<T>(string identifier, T data);
+
+   /// <summary>
    /// Sends a frame of data over the active TCP connection. The frame type is determined by the generic type parameter.
    /// </summary>
    /// <typeparam name="TFrame">The type of the frame to send, which must implement <see cref="ITcpFrame"/> and have a parameterless constructor.</typeparam>

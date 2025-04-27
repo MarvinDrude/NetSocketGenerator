@@ -18,12 +18,12 @@ public sealed class TcpServer
    private CancellationTokenSource? _runTokenSource;
    
    private readonly IConnectionFactory _connectionFactory;
-   private readonly ITcpFrameFactory _frameFactory;
+   internal readonly ITcpFrameFactory FrameFactory;
    
    private Socket? _socket;
 
    private readonly EndPoint _endPoint;
-   private readonly TcpServerOptions _options;
+   internal readonly TcpServerOptions Options;
    
    private readonly ServerFrameDispatcher _frameDispatcher = new();
    
@@ -44,13 +44,13 @@ public sealed class TcpServer
          throw new ArgumentException("Invalid port specified");
       }
       
-      _options = options;
+      Options = options;
       _endPoint = new IPEndPoint(address, options.Port);
       
       ConnectionType = DetermineConnectionType(options);
       
       _connectionFactory = CreateFactory(ConnectionType, options);
-      _frameFactory = new TcpFrameFactory();
+      FrameFactory = new TcpFrameFactory();
    }
 
    /// <summary>
@@ -163,7 +163,7 @@ public sealed class TcpServer
       _ = RunSend(connection, token);
       await OnConnected(connection);
       
-      var frame = _frameFactory.Create();
+      var frame = FrameFactory.Create();
       
       try
       {
@@ -186,7 +186,7 @@ public sealed class TcpServer
             connection.Pipe.Input.AdvanceTo(position);
             
             frame.Dispose();
-            frame = _frameFactory.Create();
+            frame = FrameFactory.Create();
          }
       }
       finally
@@ -362,7 +362,7 @@ public sealed class TcpServer
          sslStream = new SslStream(stream, false);
 
          var task = sslStream.AuthenticateAsServerAsync(
-            _options.Certificate!, false, SslProtocols.None, true);
+            Options.Certificate!, false, SslProtocols.None, true);
          await task.WaitAsync(TimeSpan.FromSeconds(20));
 
          return sslStream;
@@ -389,9 +389,9 @@ public sealed class TcpServer
    /// </remarks>
    private async Task OnConnected(TcpServerConnection connection)
    {
-      if (_options.Events.OnConnected is not null)
+      if (Options.Events.OnConnected is not null)
       {
-         await _options.Events.OnConnected(connection);
+         await Options.Events.OnConnected(connection);
       }
    }
 
@@ -414,9 +414,9 @@ public sealed class TcpServer
          return;
       }
       
-      if (_options.Events.OnDisconnected is not null)
+      if (Options.Events.OnDisconnected is not null)
       {
-         await _options.Events.OnDisconnected(connection);
+         await Options.Events.OnDisconnected(connection);
       }
    }
 
@@ -428,9 +428,9 @@ public sealed class TcpServer
    /// <returns>A task representing the asynchronous operation.</returns>
    private async Task OnFrameReceived(TcpServerConnection connection, ITcpFrame frame)
    {
-      if (_options.Events.OnFrameReceived is not null)
+      if (Options.Events.OnFrameReceived is not null)
       {
-         await _options.Events.OnFrameReceived(connection, frame);
+         await Options.Events.OnFrameReceived(connection, frame);
       }
    }
 
