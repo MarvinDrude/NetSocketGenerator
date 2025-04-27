@@ -47,9 +47,9 @@ public sealed class TcpServer
       _options = options;
       _endPoint = new IPEndPoint(address, options.Port);
       
-      ConnectionType = DetermineConnectionType();
+      ConnectionType = DetermineConnectionType(options);
       
-      _connectionFactory = CreateFactory(ConnectionType);
+      _connectionFactory = CreateFactory(ConnectionType, options);
       _frameFactory = new TcpFrameFactory();
    }
 
@@ -161,6 +161,8 @@ public sealed class TcpServer
       }
 
       _ = RunSend(connection, token);
+      await OnConnected(connection);
+      
       var frame = _frameFactory.Create();
       
       try
@@ -178,7 +180,9 @@ public sealed class TcpServer
                continue;
             }
 
+            await OnFrameReceived(connection, frame);
             await _frameDispatcher.Dispatch(frame, connection);
+            
             connection.Pipe.Input.AdvanceTo(position);
             
             frame.Dispose();
@@ -188,9 +192,7 @@ public sealed class TcpServer
       finally
       {
          frame?.Dispose();
-         await connection.DisposeAsync();
-
-         _connections.TryRemove(connection.Id, out _);
+         await OnDisconnected(connection);
       }
    }
 
@@ -287,10 +289,6 @@ public sealed class TcpServer
          {
             return null;
          }
-         catch (InvalidOperationException)
-         {
-            return null;
-         }
          catch (Exception)
          {
             // connection reset while backlog, try again  
@@ -379,41 +377,101 @@ public sealed class TcpServer
          return null;
       }
    }
-   
+
    /// <summary>
-   /// Determines the type of TCP connection to be used based on the server configuration options.
+   /// Invokes the configured event handler for a newly connected TCP client.
    /// </summary>
-   /// <returns>
-   /// The appropriate <c>TcpConnectionType</c> value for the current server configuration.
-   /// </returns>
-   private TcpConnectionType DetermineConnectionType()
+   /// <param name="connection">The connection object representing the newly established TCP connection.</param>
+   /// <returns>A task that represents the asynchronous operation of invoking the event handler.</returns>
+   /// <remarks>
+   /// This method is called when a new TCP client successfully connects to the server.
+   /// It executes the user-provided callback specified in <see cref="TcpOptions.Events.OnConnected"/>, if defined.
+   /// </remarks>
+   private async Task OnConnected(TcpServerConnection connection)
    {
-      return _options.ConnectionType switch
+      if (_options.Events.OnConnected is not null)
       {
-         TcpConnectionType.Unset when _options.IsSecure is false => TcpConnectionType.FastSocket,
-         TcpConnectionType.Unset when _options.IsSecure => TcpConnectionType.SslStream,
+         await _options.Events.OnConnected(connection);
+      }
+   }
+
+   /// <summary>
+   /// Handles the disconnection of a TCP server connection and performs cleanup operations.
+   /// </summary>
+   /// <param name="connection">The <see cref="TcpServerConnection"/> instance that has been disconnected.</param>
+   /// <returns>A task representing the asynchronous operation.</returns>
+   /// <remarks>
+   /// This method ensures the proper disposal of the disconnected connection, removes the connection
+   /// from the internal collection of active connections, and invokes the user-defined `OnDisconnected`
+   /// callback, if provided, to handle additional custom logic upon disconnection.
+   /// </remarks>
+   private async Task OnDisconnected(TcpServerConnection connection)
+   {
+      await connection.DisposeAsync();
+
+      if (!_connections.TryRemove(connection.Id, out _))
+      {
+         return;
+      }
+      
+      if (_options.Events.OnDisconnected is not null)
+      {
+         await _options.Events.OnDisconnected(connection);
+      }
+   }
+
+   /// <summary>
+   /// Invokes the configured callback, if present, when a frame is received on a TCP connection.
+   /// </summary>
+   /// <param name="connection">The connection on which the frame was received.</param>
+   /// <param name="frame">The frame that was received.</param>
+   /// <returns>A task representing the asynchronous operation.</returns>
+   private async Task OnFrameReceived(TcpServerConnection connection, ITcpFrame frame)
+   {
+      if (_options.Events.OnFrameReceived is not null)
+      {
+         await _options.Events.OnFrameReceived(connection, frame);
+      }
+   }
+
+   /// <summary>
+   /// Determines the type of TCP connection to use based on the provided options.
+   /// </summary>
+   /// <param name="options">
+   /// An object containing the properties used to define TCP connection settings, such as security and preset connection type attributes.
+   /// </param>
+   /// <returns>
+   /// A <see cref="TcpConnectionType"/> value representing the type of TCP connection to be established.
+   /// </returns>
+   internal static TcpConnectionType DetermineConnectionType(TcpOptions options)
+   {
+      return options.ConnectionType switch
+      {
+         TcpConnectionType.Unset when options.IsSecure is false => TcpConnectionType.FastSocket,
+         TcpConnectionType.Unset when options.IsSecure => TcpConnectionType.SslStream,
          
          TcpConnectionType.FastSocket => TcpConnectionType.FastSocket,
          
-         TcpConnectionType.SslStream when _options.IsSecure => TcpConnectionType.SslStream,
-         TcpConnectionType.NetworkStream when _options.IsSecure is false => TcpConnectionType.NetworkStream,
+         TcpConnectionType.SslStream when options.IsSecure => TcpConnectionType.SslStream,
+         TcpConnectionType.NetworkStream when options.IsSecure is false => TcpConnectionType.NetworkStream,
          
          _ => TcpConnectionType.FastSocket
       };
    }
 
    /// <summary>
-   /// Creates a connection factory based on the specified connection type.
+   /// Creates and returns an appropriate connection factory based on the specified connection type and options.
    /// </summary>
-   /// <param name="connectionType">The type of connection to create. Must be a valid <c>TcpConnectionType</c>.</param>
-   /// <returns>An implementation of <c>IConnectionFactory</c> suitable for the specified connection type.</returns>
-   /// <exception cref="ArgumentException">Thrown when the specified <paramref name="connectionType"/> is invalid.</exception>
-   private IConnectionFactory CreateFactory(TcpConnectionType connectionType)
+   /// <param name="connectionType">The type of connection to be established, which determines the specific factory to create.</param>
+   /// <param name="options">The configuration options required to initialize the connection factory.</param>
+   /// <returns>An instance of <see cref="IConnectionFactory"/> corresponding to the provided connection type.</returns>
+   /// <exception cref="ArgumentException">Thrown when an invalid or unsupported connection type is specified.</exception>
+   internal static IConnectionFactory CreateFactory(TcpConnectionType connectionType, TcpOptions options)
    {
       return connectionType switch
       {
-         TcpConnectionType.FastSocket => new SocketConnectionFactory(_options.SocketConnectionOptions),
-         TcpConnectionType.NetworkStream or TcpConnectionType.SslStream => new StreamConnectionFactory(_options.StreamConnectionOptions),
+         TcpConnectionType.FastSocket => new SocketConnectionFactory(options.SocketConnectionOptions),
+         TcpConnectionType.NetworkStream or TcpConnectionType.SslStream => new StreamConnectionFactory(options.StreamConnectionOptions),
          _ => throw new ArgumentException("Invalid connection type specified")
       };
    }

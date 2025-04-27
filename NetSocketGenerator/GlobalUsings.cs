@@ -24,3 +24,4 @@ global using NetSocketGenerator.Tcp.Frames;
 global using NetSocketGenerator.Events;
 global using NetSocketGenerator.Events.Delegates;
 global using NetSocketGenerator.Internal;
+global using NetSocketGenerator.Tcp;

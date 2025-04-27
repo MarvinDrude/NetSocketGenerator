@@ -4,7 +4,21 @@ namespace NetSocketGenerator.Tcp.Frames;
 /// <inheritdoc cref="ITcpFrame"/>
 public sealed class TcpFrame : ITcpFrame
 {
-   public string? Identifier { get; set; }
+   private string? _identifier;
+   public string? Identifier
+   {
+      get => _identifier;
+      set
+      {
+         if (value is { Length: > TcpConstants.SafeStackBufferSize })
+         {
+            throw new ArgumentException("Identifier cannot exceed the maximum buffer size", nameof(value));
+         }
+         
+         _identifier = value;
+      }
+   }
+
    public ReadOnlyMemory<byte> Data { get; set; }
    
    [MemberNotNullWhen(false, nameof(Identifier))]
@@ -50,20 +64,56 @@ public sealed class TcpFrame : ITcpFrame
    public SequencePosition Read(ref ReadOnlySequence<byte> buffer)
    {
       var reader = new SequenceReader<byte>(buffer);
-
+      
       if (!reader.TryRead(out var rawFlag))
       {
          return reader.Position;
       }
       
       IsRawOnly = rawFlag == 1;
+      var sizeRequired = GetRawSize() - 1;
+
+      if (reader.Remaining < sizeRequired)
+      {
+         return reader.Position;
+      }
+
+      if (IsRawOnly)
+      {
+         Memory<byte> memory = new byte[sizeRequired];
+         Data = memory;
+         
+         reader.TryCopyTo(memory.Span);
+         reader.Advance(memory.Span.Length);
+         
+         IsComplete = true;
+         return reader.Position;
+      }
       
+      reader.TryReadBigEndian(out int idLength);
+      
+      if (idLength is > TcpConstants.SafeStackBufferSize or < 1)
+         throw new InvalidOperationException();
+      
+      Span<byte> idSpan = stackalloc byte[idLength];
+
+      reader.TryCopyTo(idSpan);
+      reader.Advance(idSpan.Length);
+      Identifier = Encoding.UTF8.GetString(idSpan);
+      
+      reader.TryReadBigEndian(out int dataLength);
+      
+      Memory<byte> payload = new byte[dataLength];
+      Data = payload;
+         
+      reader.TryCopyTo(payload.Span);
+      reader.Advance(payload.Span.Length);
+
+      return reader.Position;
    }
-   
-   private SequencePosition
    
    public void Dispose()
    {
-      // TODO release managed resources here
+      
    }
 }

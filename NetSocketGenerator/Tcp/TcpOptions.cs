@@ -72,4 +72,14 @@ public class TcpOptions
    /// which determines how the underlying communication is handled.
    /// </remarks>
    public TcpConnectionType ConnectionType { get; init; } = TcpConnectionType.Unset;
+
+   /// <summary>
+   /// Gets the set of event callbacks used to handle TCP connection events.
+   /// </summary>
+   /// <remarks>
+   /// The <c>Events</c> property contains callbacks for handling key TCP connection lifecycle events such as
+   /// receiving a frame, connection establishment, and disconnection. These callbacks are invoked
+   /// during the corresponding events and allow for custom behavior to be defined.
+   /// </remarks>
+   public TcpEventCallbacks Events { get; init; } = new();
 }
