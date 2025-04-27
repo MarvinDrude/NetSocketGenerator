@@ -21,6 +21,45 @@ public sealed class TcpServerConnection
    internal readonly CancellationTokenSource DisconnectTokenSource = new();
 
    private bool _disposed;
+
+   public void SendFrame<TFrame>(string identifier, ReadOnlyMemory<byte> rawData)
+      where TFrame : ITcpFrame, new()
+   {
+      Send(new TFrame()
+      {
+         Identifier = identifier,
+         IsRawOnly = true,
+         IsForSending = true,
+         Data = rawData
+      });
+   }
+
+   public void SendFrame<TFrame>(ReadOnlyMemory<byte> rawData)
+      where TFrame : ITcpFrame, new()
+   {
+      Send(new TFrame()
+      {
+         IsRawOnly = true,
+         IsForSending = true,
+         Data = rawData
+      });
+   }
+      
+   public void Send(ITcpFrame frame)
+   {
+      frame.IsForSending = true;
+      SendChannel.Writer.TryWrite(frame);
+   }
+   
+   public ValueTask Disconnect()
+   {
+      if (!DisconnectTokenSource.IsCancellationRequested)
+      {
+         DisconnectTokenSource.Cancel();
+      }
+      
+      return ValueTask.CompletedTask;
+   }
    
    public async ValueTask DisposeAsync()
    {

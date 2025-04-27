@@ -38,15 +38,6 @@ public class TcpOptions
    public bool IsSecure { get; init; }
 
    /// <summary>
-   /// Gets the maximum allowed size, in bytes, for handshake data during a TCP connection setup.
-   /// </summary>
-   /// <remarks>
-   /// This property defines the limit on the size of data that can be exchanged during the handshake phase of the connection.
-   /// It ensures that handshake operations adhere to a predefined data size constraint, improving reliability and security.
-   /// </remarks>
-   public int MaxHandshakeSizeBytes { get; init; }
-
-   /// <summary>
    /// Gets or sets the configuration options specific to managing socket-based connections.
    /// </summary>
    /// <remarks>

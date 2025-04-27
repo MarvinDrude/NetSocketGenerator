@@ -1,14 +1,29 @@
 ﻿
+using NetSocketGenerator.Tcp;
 
-public sealed class PingHandler
+var server = new TcpServer(new TcpServerOptions()
 {
-   public PingHandler()
+   Address = "127.0.0.1",
+   Port = 12234,
+   Events = new TcpEventCallbacks()
    {
-      
+      OnConnected = async (connection) =>
+      {
+         
+      },
    }
+});
 
-   public async Task Execute()
-   {
-      
-   }
-}
+
+// public sealed class PingHandler
+// {
+//    public PingHandler()
+//    {
+//       
+//    }
+//
+//    public async Task Execute()
+//    {
+//       
+//    }
+// }
