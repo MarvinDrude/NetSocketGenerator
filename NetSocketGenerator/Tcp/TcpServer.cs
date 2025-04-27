@@ -208,20 +208,27 @@ public sealed class TcpServer
    /// <returns>A task that represents the asynchronous operation.</returns>
    private async Task RunSend(TcpServerConnection connection, CancellationToken token)
    {
+      const int maxPerBatch = 1_000_000;
+      
       while (!token.IsCancellationRequested
              && await connection.SendChannel.Reader.WaitToReadAsync(token)
              && connection.Pipe is not null)
       {
          try
          {
-            var frame = await connection.SendChannel.Reader.ReadAsync(token);
-
-            if (!frame.IsForSending || frame.Data.Length == 0)
+            var count = 0;
+            
+            while (connection.SendChannel.Reader.TryRead(out var frame)
+                   && count++ < maxPerBatch)
             {
-               continue;
+               if (!frame.IsForSending || frame.Data.Length == 0)
+               {
+                  continue;
+               }
+
+               frame.Send(connection.Pipe);
             }
 
-            frame.Send(connection.Pipe);
             await connection.Pipe.Output.FlushAsync(token);
          }
          catch (Exception) { /* ignored */ }

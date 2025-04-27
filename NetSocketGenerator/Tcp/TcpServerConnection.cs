@@ -17,7 +17,10 @@ public sealed class TcpServerConnection
    
    public IDuplexPipe? Pipe { get; set; }
    
-   internal readonly Channel<ITcpFrame> SendChannel = Channel.CreateUnbounded<ITcpFrame>();
+   internal readonly Channel<ITcpFrame> SendChannel = Channel.CreateBounded<ITcpFrame>(new BoundedChannelOptions(5_000)
+   {
+      FullMode = BoundedChannelFullMode.DropWrite
+   });
    internal readonly CancellationTokenSource DisconnectTokenSource = new();
 
    private bool _disposed;

@@ -1,6 +1,7 @@
 ﻿
 using NetSocketGenerator.Tcp;
 using NetSocketGenerator.Tcp.Frames;
+using NetSocketGenerator.Tcp.Interfaces;
 
 
 // public sealed class PingHandler
@@ -25,19 +26,21 @@ var server = new TcpServer(new TcpServerOptions()
    Port = 12234,
    Events = new TcpEventCallbacks()
    {
-      OnConnected = async (connection) =>
+      OnConnected = (connection) =>
       {
          Console.WriteLine("[Server] Client Connected");
+         return Task.CompletedTask;
       },
-      OnDisconnected = async (connection) =>
+      OnDisconnected = (connection) =>
       {
          Console.WriteLine("[Server] Client Disconnected");
+         return Task.CompletedTask;
       },
-      OnFrameReceived = async (connection, frame) =>
+      OnFrameReceived = (connection, frame) =>
       {
-         //Console.WriteLine("[Server] Client sent frame");
-         connection.Send("test", "test1");
          Interlocked.Increment(ref messagesReceived);
+         //Console.WriteLine("[Server] Client sent frame");
+         return Task.CompletedTask;
       }
    }
 });
@@ -52,19 +55,22 @@ for (var e = 0; e < 1; e++)
       ReconnectInterval = TimeSpan.FromSeconds(100),
       Events = new TcpEventCallbacks()
       {
-         OnConnected = async (connection) =>
+         OnConnected = (connection) =>
          {
             Console.WriteLine("[Client] Connected");
-            connection.Send("test", new byte[] { 2, 2, 2, 2, 2 });
+            _ = Task.Factory.StartNew(async () => await RunCommands(connection), TaskCreationOptions.LongRunning);
+            return Task.CompletedTask;
          },
-         OnDisconnected = async (connection) =>
+         OnDisconnected = (connection) =>
          {
             Console.WriteLine("[Client] Disconnected");
+            return Task.CompletedTask;
          },
-         OnFrameReceived = async (connection, frame) =>
+         OnFrameReceived = (connection, frame) =>
          {
+            return Task.CompletedTask;
             //Console.WriteLine("[Client] received frame");
-            connection.Send("test", new byte[] { 2, 2, 2, 2, 2 });
+            //connection.Send("test", new byte[] { 2, 2, 2, 2, 2 });
          }
       }
    });
@@ -76,4 +82,19 @@ while (true)
    await Task.Delay(1_000);
    var elapsed = DateTimeOffset.UtcNow - start;
    Console.WriteLine($"Messages received per second: {(messagesReceived / elapsed.TotalSeconds)}");
+   start = DateTimeOffset.UtcNow;
+   Interlocked.Exchange(ref messagesReceived, 0);
+}
+
+
+static async Task RunCommands(ITcpConnection connection)
+{
+   while (true)
+   {
+      connection.Send("test", new byte[] { 2, 2, 2, 2, 2 });
+      connection.Send("test", new byte[] { 2, 2, 2, 2, 2 });
+      connection.Send("test", new byte[] { 2, 2, 2, 2, 2 });
+      connection.Send("test", new byte[] { 2, 2, 2, 2, 2 });
+      connection.Send("test", new byte[] { 2, 2, 2, 2, 2 });
+   }
 }

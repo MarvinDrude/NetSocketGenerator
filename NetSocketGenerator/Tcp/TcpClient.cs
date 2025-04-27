@@ -21,7 +21,10 @@ public sealed class TcpClient : ITcpConnection
    
    private readonly ServerFrameDispatcher _frameDispatcher = new();
    
-   private readonly Channel<ITcpFrame> _sendChannel = Channel.CreateUnbounded<ITcpFrame>();
+   private readonly Channel<ITcpFrame> _sendChannel = Channel.CreateBounded<ITcpFrame>(new BoundedChannelOptions(5_000)
+   {
+      FullMode = BoundedChannelFullMode.DropWrite
+   });
    private CancellationTokenSource? _runTokenSource;
    
    private IDuplexPipe? _pipe;
@@ -324,20 +327,27 @@ public sealed class TcpClient : ITcpConnection
    /// <returns>A task representing the asynchronous execution of the send operation.</returns>
    private async Task RunSend(CancellationToken token)
    {
+      const int maxPerBatch = 1_000_000;
+      
       while (!token.IsCancellationRequested
              && _pipe is not null
              && await _sendChannel.Reader.WaitToReadAsync(token))
       {
          try
          {
-            var frame = await _sendChannel.Reader.ReadAsync(token);
-
-            if (frame.Data.Length == 0)
+            var count = 0;
+            
+            while (_sendChannel.Reader.TryRead(out var frame)
+                   && count++ < maxPerBatch)
             {
-               continue;
+               if (!frame.IsForSending || frame.Data.Length == 0)
+               {
+                  continue;
+               }
+
+               frame.Send(_pipe);
             }
 
-            frame.Send(_pipe);
             await _pipe.Output.FlushAsync(token);
          }
          catch (Exception er)
