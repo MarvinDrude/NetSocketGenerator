@@ -25,12 +25,12 @@ public sealed class TcpServerConnection
 
    private bool _disposed;
 
-   public void Send(string identifier, string rawData)
+   public bool Send(string identifier, string rawData)
    {
-      Send(identifier, Encoding.UTF8.GetBytes(rawData));
+      return Send(identifier, Encoding.UTF8.GetBytes(rawData));
    }
    
-   public void Send(string identifier, ReadOnlyMemory<byte> rawData)
+   public bool Send(string identifier, ReadOnlyMemory<byte> rawData)
    {
       var frame = Server.FrameFactory.Create();
 
@@ -38,10 +38,10 @@ public sealed class TcpServerConnection
       frame.IsForSending = true;
       frame.Data = rawData;
       
-      Send(frame);
+      return Send(frame);
    }
    
-   public void Send<T>(string identifier, T data)
+   public bool Send<T>(string identifier, T data)
    {
       var frame = Server.FrameFactory.Create();
 
@@ -49,13 +49,13 @@ public sealed class TcpServerConnection
       frame.IsForSending = true;
       frame.Data = Server.Options.Serializer.SerializeAsMemory(data);
       
-      Send(frame);
+      return Send(frame);
    }
    
-   public void SendFrame<TFrame>(string identifier, string rawData)
+   public bool SendFrame<TFrame>(string identifier, string rawData)
       where TFrame : ITcpFrame, new()
    {
-      Send(new TFrame()
+      return Send(new TFrame()
       {
          Identifier = identifier,
          IsForSending = true,
@@ -63,10 +63,10 @@ public sealed class TcpServerConnection
       });
    }
    
-   public void SendFrame<TFrame>(string identifier, ReadOnlyMemory<byte> rawData)
+   public bool SendFrame<TFrame>(string identifier, ReadOnlyMemory<byte> rawData)
       where TFrame : ITcpFrame, new()
    {
-      Send(new TFrame()
+      return Send(new TFrame()
       {
          Identifier = identifier,
          IsForSending = true,
@@ -74,10 +74,10 @@ public sealed class TcpServerConnection
       });
    }
 
-   public void SendFrame<TFrame>(ReadOnlyMemory<byte> rawData)
+   public bool SendFrame<TFrame>(ReadOnlyMemory<byte> rawData)
       where TFrame : ITcpFrame, new()
    {
-      Send(new TFrame()
+      return Send(new TFrame()
       {
          IsRawOnly = true,
          IsForSending = true,
@@ -85,10 +85,10 @@ public sealed class TcpServerConnection
       });
    }
       
-   public void Send(ITcpFrame frame)
+   public bool Send(ITcpFrame frame)
    {
       frame.IsForSending = true;
-      SendChannel.Writer.TryWrite(frame);
+      return SendChannel.Writer.TryWrite(frame);
    }
    
    public ValueTask Disconnect()

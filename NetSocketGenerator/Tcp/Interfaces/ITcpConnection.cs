@@ -9,14 +9,14 @@ public interface ITcpConnection
    /// </summary>
    /// <param name="identifier">The unique identifier for the data being sent.</param>
    /// <param name="rawData">The raw data to send as a string.</param>
-   public void Send(string identifier, string rawData);
+   public bool Send(string identifier, string rawData);
 
    /// <summary>
    /// Sends data over the current TCP connection.
    /// </summary>
    /// <param name="identifier">The unique identifier for the data being sent.</param>
    /// <param name="rawData">The raw data to send as a read-only memory buffer.</param>
-   public void Send(string identifier, ReadOnlyMemory<byte> rawData);
+   public bool Send(string identifier, ReadOnlyMemory<byte> rawData);
 
    /// <summary>
    /// Sends data over the current TCP connection. The type of data is specified by the generic type parameter.
@@ -25,7 +25,7 @@ public interface ITcpConnection
    /// <typeparam name="T">The type of data to send.</typeparam>
    /// <param name="identifier">The unique identifier for the data being sent.</param>
    /// <param name="data">The data to be serialized and then sent.</param>
-   public void Send<T>(string identifier, T data);
+   public bool Send<T>(string identifier, T data);
 
    /// <summary>
    /// Sends a frame of data over the active TCP connection. The frame type is determined by the generic type parameter.
@@ -33,7 +33,7 @@ public interface ITcpConnection
    /// <typeparam name="TFrame">The type of the frame to send, which must implement <see cref="ITcpFrame"/> and have a parameterless constructor.</typeparam>
    /// <param name="identifier">The identifier associated with the frame being sent.</param>
    /// <param name="rawData">The raw data to encapsulate within the frame and send.</param>
-   public void SendFrame<TFrame>(string identifier, string rawData)
+   public bool SendFrame<TFrame>(string identifier, string rawData)
       where TFrame : ITcpFrame, new();
 
    /// <summary>
@@ -42,7 +42,7 @@ public interface ITcpConnection
    /// <typeparam name="TFrame">The type of the frame to send, which must implement <see cref="ITcpFrame"/> and have a parameterless constructor.</typeparam>
    /// <param name="identifier">The identifier associated with the frame being sent.</param>
    /// <param name="rawData">The raw data to encapsulate within the frame and send.</param>
-   public void SendFrame<TFrame>(string identifier, ReadOnlyMemory<byte> rawData)
+   public bool SendFrame<TFrame>(string identifier, ReadOnlyMemory<byte> rawData)
       where TFrame : ITcpFrame, new();
 
    /// <summary>
@@ -50,14 +50,14 @@ public interface ITcpConnection
    /// </summary>
    /// <typeparam name="TFrame">The type of the frame to send, which must implement <see cref="ITcpFrame"/> and have a parameterless constructor.</typeparam>
    /// <param name="rawData">The raw data to encapsulate within the frame and send.</param>
-   public void SendFrame<TFrame>(ReadOnlyMemory<byte> rawData)
+   public bool SendFrame<TFrame>(ReadOnlyMemory<byte> rawData)
       where TFrame : ITcpFrame, new();
 
    /// <summary>
    /// Sends data over the active TCP connection. The data can be sent either by specifying
    /// an identifier with the raw data or just raw data.
    /// </summary>
-   public void Send(ITcpFrame frame);
+   public bool Send(ITcpFrame frame);
 
    /// <summary>
    /// Terminates the active TCP connection and releases all associated resources.

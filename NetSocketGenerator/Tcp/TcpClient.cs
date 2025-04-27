@@ -57,12 +57,12 @@ public sealed class TcpClient : ITcpConnection
       _frameFactory = new TcpFrameFactory();
    }
 
-   public void Send(string identifier, string rawData)
+   public bool Send(string identifier, string rawData)
    {
-      Send(identifier, Encoding.UTF8.GetBytes(rawData));
+      return Send(identifier, Encoding.UTF8.GetBytes(rawData));
    }
    
-   public void Send(string identifier, ReadOnlyMemory<byte> rawData)
+   public bool Send(string identifier, ReadOnlyMemory<byte> rawData)
    {
       var frame = _frameFactory.Create();
 
@@ -70,10 +70,10 @@ public sealed class TcpClient : ITcpConnection
       frame.IsForSending = true;
       frame.Data = rawData;
       
-      Send(frame);
+      return Send(frame);
    }
    
-   public void Send<T>(string identifier, T data)
+   public bool Send<T>(string identifier, T data)
    {
       var frame = _frameFactory.Create();
 
@@ -81,13 +81,13 @@ public sealed class TcpClient : ITcpConnection
       frame.IsForSending = true;
       frame.Data = _options.Serializer.SerializeAsMemory(data);
       
-      Send(frame);
+      return Send(frame);
    }
    
-   public void SendFrame<TFrame>(string identifier, string rawData)
+   public bool SendFrame<TFrame>(string identifier, string rawData)
       where TFrame : ITcpFrame, new()
    {
-      Send(new TFrame()
+      return Send(new TFrame()
       {
          Identifier = identifier,
          IsForSending = true,
@@ -95,10 +95,10 @@ public sealed class TcpClient : ITcpConnection
       });
    }
    
-   public void SendFrame<TFrame>(string identifier, ReadOnlyMemory<byte> rawData)
+   public bool SendFrame<TFrame>(string identifier, ReadOnlyMemory<byte> rawData)
       where TFrame : ITcpFrame, new()
    {
-      Send(new TFrame()
+      return Send(new TFrame()
       {
          Identifier = identifier,
          IsForSending = true,
@@ -106,10 +106,10 @@ public sealed class TcpClient : ITcpConnection
       });
    }
 
-   public void SendFrame<TFrame>(ReadOnlyMemory<byte> rawData)
+   public bool SendFrame<TFrame>(ReadOnlyMemory<byte> rawData)
       where TFrame : ITcpFrame, new()
    {
-      Send(new TFrame()
+      return Send(new TFrame()
       {
          IsRawOnly = true,
          IsForSending = true,
@@ -117,10 +117,48 @@ public sealed class TcpClient : ITcpConnection
       });
    }
       
-   public void Send(ITcpFrame frame)
+   public bool Send(ITcpFrame frame)
    {
       frame.IsForSending = true;
-      _sendChannel.Writer.TryWrite(frame);
+      return _sendChannel.Writer.TryWrite(frame);
+   }
+   
+   /// <summary>
+   /// Registers a message handler for a specific key to process incoming frame messages.
+   /// </summary>
+   /// <remarks>
+   /// This method allows the caller to map a specific key to a custom handler that processes
+   /// the corresponding frame messages. The registered handler will be invoked whenever a message
+   /// with the specified key is received.
+   /// </remarks>
+   /// <param name="key">
+   /// A string that represents the key associated with the message to be handled. This key
+   /// is used to identify which handler to invoke for incoming messages.
+   /// </param>
+   /// <param name="handler">
+   /// A delegate of type <see cref="ServerFrameMessageHandler"/> that processes the incoming
+   /// connection, message identifier, and payload for messages associated with the specified key.
+   /// </param>
+   public void AddHandler(string key, ServerFrameMessageHandler handler)
+   {
+      _frameDispatcher.AddKeyHandler(key, handler);
+   }
+
+   /// <summary>
+   /// Registers a raw message handler to process incoming frame messages.
+   /// </summary>
+   /// <remarks>
+   /// This method allows the caller to add a custom handler that receives and processes
+   /// the raw frame data from incoming TCP connections. The handler will be invoked for
+   /// each message received.
+   /// </remarks>
+   /// <param name="handler">
+   /// A delegate of type <see cref="ServerFrameMessageHandler"/> that processes the incoming
+   /// connection, message identifier, and payload.
+   /// </param>
+   public void AddRawHandler(ServerFrameMessageHandler handler)
+   {
+      _frameDispatcher.AddRawHandler(handler);
    }
 
    /// <summary>

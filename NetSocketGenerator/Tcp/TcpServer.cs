@@ -54,6 +54,44 @@ public sealed class TcpServer
    }
 
    /// <summary>
+   /// Registers a message handler for a specific key to process incoming frame messages.
+   /// </summary>
+   /// <remarks>
+   /// This method allows the caller to map a specific key to a custom handler that processes
+   /// the corresponding frame messages. The registered handler will be invoked whenever a message
+   /// with the specified key is received.
+   /// </remarks>
+   /// <param name="key">
+   /// A string that represents the key associated with the message to be handled. This key
+   /// is used to identify which handler to invoke for incoming messages.
+   /// </param>
+   /// <param name="handler">
+   /// A delegate of type <see cref="ServerFrameMessageHandler"/> that processes the incoming
+   /// connection, message identifier, and payload for messages associated with the specified key.
+   /// </param>
+   public void AddHandler(string key, ServerFrameMessageHandler handler)
+   {
+      _frameDispatcher.AddKeyHandler(key, handler);
+   }
+
+   /// <summary>
+   /// Registers a raw message handler to process incoming frame messages.
+   /// </summary>
+   /// <remarks>
+   /// This method allows the caller to add a custom handler that receives and processes
+   /// the raw frame data from incoming TCP connections. The handler will be invoked for
+   /// each message received.
+   /// </remarks>
+   /// <param name="handler">
+   /// A delegate of type <see cref="ServerFrameMessageHandler"/> that processes the incoming
+   /// connection, message identifier, and payload.
+   /// </param>
+   public void AddRawHandler(ServerFrameMessageHandler handler)
+   {
+      _frameDispatcher.AddRawHandler(handler);
+   }
+   
+   /// <summary>
    /// Starts the TCP server, binding it to the configured endpoint and initiating the loop to accept incoming connections.
    /// </summary>
    /// <remarks>
