@@ -10,4 +10,9 @@ public static class TcpConstants
    /// on the stack to ensure reliable TCP socket communication.
    /// </summary>
    public const int SafeStackBufferSize = 1024;
+
+   /// <summary>
+   /// Maximum number of characters allowed in a range token type.
+   /// </summary>
+   public const int TokenCharRangeMaxCount = 256;
 }
