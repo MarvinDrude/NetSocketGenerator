@@ -1,17 +1,29 @@
 ﻿
+using NetSocketGenerator.Attributes;
 using NetSocketGenerator.Tcp;
 using NetSocketGenerator.Tcp.Frames;
 using NetSocketGenerator.Tcp.Interfaces;
 
-
-public sealed class PingHandler
+[SocketProcessor(
+   EventNamePattern = "ping:*"
+)]
+public sealed class PingProcessor
 {
-   public PingHandler()
+   public PingProcessor()
    {
       
    }
 
-   public async Task Execute()
+   public async Task Execute(
+      [SocketEventName] string eventName,
+      [SocketPayload] PingMessage payload)
+   {
+      
+      
+      await Task.CompletedTask;
+   }
+
+   public sealed class PingMessage
    {
       
    }
