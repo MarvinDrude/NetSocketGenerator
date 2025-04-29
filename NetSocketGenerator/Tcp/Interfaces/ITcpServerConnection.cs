@@ -12,6 +12,8 @@ public interface ITcpServerConnection : ITcpConnection
 {
    public ITcpServer CurrentServer { get; }
    
+   public TcpServerConnectionGrouping Groups { get; }
+   
    public void AddToGroup(string groupName);
 
    public void RemoveFromGroup(string groupName);

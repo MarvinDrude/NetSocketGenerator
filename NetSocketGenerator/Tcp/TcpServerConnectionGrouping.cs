@@ -6,7 +6,15 @@
 /// </summary>
 public sealed class TcpServerConnectionGrouping
 {
+   private static readonly ITcpConnection EmptyConnectionPlaceholder 
+      = new TcpServerConnectionGroup() { Server = null! };
+   
    private readonly ConcurrentDictionary<string, TcpServerConnectionGroup> _groups = [];
+
+   public ITcpConnection this[string groupName] =>
+      _groups.TryGetValue(groupName, out var group)
+         ? group
+         : EmptyConnectionPlaceholder;
 
    public void AddToGroup(string groupName, TcpServerConnection connection)
    {
@@ -40,7 +48,7 @@ public sealed class TcpServerConnectionGrouping
       }
    }
    
-   public void Clear()
+   internal void Clear()
    {
       _groups.Clear();
    }
@@ -50,7 +58,7 @@ public sealed class TcpServerConnectionGrouping
 /// Represents a group of TCP server connections, allowing management and sending of data
 /// to multiple connections within the group.
 /// </summary>
-public sealed class TcpServerConnectionGroup : ITcpConnection
+internal sealed class TcpServerConnectionGroup : ITcpConnection
 {
    public Guid Id { get; } = Guid.CreateVersion7();
  
@@ -62,12 +70,12 @@ public sealed class TcpServerConnectionGroup : ITcpConnection
    
    private readonly ConcurrentDictionary<Guid, TcpServerConnection> _connections = [];
    
-   public void AddConnection(TcpServerConnection connection)
+   internal void AddConnection(TcpServerConnection connection)
    {
       _connections.TryAdd(connection.Id, connection);
    }
 
-   public void RemoveConnection(TcpServerConnection connection)
+   internal void RemoveConnection(TcpServerConnection connection)
    {
       _connections.TryRemove(connection.Id, out _);
    }
@@ -134,6 +142,11 @@ public sealed class TcpServerConnectionGroup : ITcpConnection
 
    public bool Send(ITcpFrame frame)
    {
+      if (_connections.IsEmpty)
+      {
+         return false;
+      }
+      
       foreach (var connection in _connections.Values)
       {
          connection.Send(frame);
@@ -144,6 +157,11 @@ public sealed class TcpServerConnectionGroup : ITcpConnection
 
    public async ValueTask Disconnect()
    {
+      if (_connections.IsEmpty)
+      {
+         return;
+      }
+      
       foreach (var connection in _connections.Values)
       {
          await connection.Disconnect();

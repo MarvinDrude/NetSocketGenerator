@@ -13,6 +13,8 @@ public sealed class TcpServerConnection
    
    public required TcpServer Server { get; init; }
    
+   public TcpServerConnectionGrouping Groups { get; }
+   
    public ITcpServer CurrentServer => Server;
    
    public Stream? Stream { get; set; }

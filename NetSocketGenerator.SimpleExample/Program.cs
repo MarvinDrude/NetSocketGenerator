@@ -19,7 +19,10 @@ public sealed class PingProcessor
       [SocketEventName] string eventName,
       [SocketPayload] PingMessage payload)
    {
-      
+      if (connection is ITcpServerConnection serverConnection)
+      {
+         serverConnection.CurrentServer.Groups[""].Send("", "");
+      }
       
       await Task.CompletedTask;
    }

@@ -14,6 +14,8 @@ public sealed class TcpServer : ITcpServer
 {
    public TcpConnectionType ConnectionType { get; }
 
+   public TcpServerConnectionGrouping Groups { get; } = new();
+
    private readonly ConcurrentDictionary<Guid, TcpServerConnection> _connections = [];
    private CancellationTokenSource? _runTokenSource;
    
@@ -26,8 +28,7 @@ public sealed class TcpServer : ITcpServer
    internal readonly TcpServerOptions Options;
    
    private readonly ServerFrameDispatcher _frameDispatcher = new();
-   private readonly TcpServerConnectionGrouping _grouping = new();
-   
+
    public TcpServer(TcpServerOptions options)
    {
       if (options is { IsSecure: true, Certificate: null })
@@ -118,7 +119,7 @@ public sealed class TcpServer : ITcpServer
       }
 
       _connections.Clear();
-      _grouping.Clear();
+      Groups.Clear();
       
       _runTokenSource = new CancellationTokenSource();
       var token = _runTokenSource.Token;
@@ -148,7 +149,7 @@ public sealed class TcpServer : ITcpServer
       }
       
       _connections.Clear();
-      _grouping.Clear();
+      Groups.Clear();
       
       await _runTokenSource.CancelAsync();
       _runTokenSource.Dispose();
@@ -182,12 +183,12 @@ public sealed class TcpServer : ITcpServer
 
    internal void AddToGroup(string groupName, TcpServerConnection connection)
    {
-      _grouping.AddToGroup(groupName, connection);
+      Groups.AddToGroup(groupName, connection);
    }
 
    internal void RemoveFromGroup(string groupName, TcpServerConnection connection)
    {
-      _grouping.RemoveFromGroup(groupName, connection);
+      Groups.RemoveFromGroup(groupName, connection);
    }
 
    /// <summary>
