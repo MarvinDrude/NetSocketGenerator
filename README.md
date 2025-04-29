@@ -10,7 +10,7 @@ Lightweight library for TCP Communication in .NET 10 / C#. Still work in progres
 - Defaults to fast sockets but supports stream and ssl stream 🔒
 - High-throughput batching 📈
 - Custom framing 🛠️
-- Add event handlers with wildcards like *,[abc], ? and escape with \\
+- Add event handlers with wildcards like *,[abc], ? and escape with \\ ✳️
 
 
 ## Next features
