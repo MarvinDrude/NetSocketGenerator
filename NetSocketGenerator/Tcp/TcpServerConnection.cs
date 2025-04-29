@@ -2,7 +2,7 @@
 namespace NetSocketGenerator.Tcp;
 
 public sealed class TcpServerConnection 
-   : ITcpConnection, IAsyncDisposable
+   : ITcpServerConnection, IAsyncDisposable
 {
    [MemberNotNullWhen(true, nameof(Pipe))]
    public bool IsInitialized => Pipe is not null;
@@ -12,6 +12,8 @@ public sealed class TcpServerConnection
    public required Socket Socket { get; init; }
    
    public required TcpServer Server { get; init; }
+   
+   public ITcpServer CurrentServer => Server;
    
    public Stream? Stream { get; set; }
    
@@ -24,6 +26,16 @@ public sealed class TcpServerConnection
    internal readonly CancellationTokenSource DisconnectTokenSource = new();
 
    private bool _disposed;
+
+   public void AddToGroup(string groupName)
+   {
+      Server.AddToGroup(groupName, this);
+   }
+
+   public void RemoveFromGroup(string groupName)
+   {
+      Server.RemoveFromGroup(groupName, this);
+   }
 
    public bool Send(string identifier, string rawData)
    {

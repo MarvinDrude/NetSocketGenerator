@@ -10,7 +10,7 @@ namespace NetSocketGenerator.Tcp;
 /// It manages the lifecycle of the server, including binding to an endpoint,
 /// handling multiple connections, and providing a secure or insecure communication layer.
 /// </remarks>
-public sealed class TcpServer
+public sealed class TcpServer : ITcpServer
 {
    public TcpConnectionType ConnectionType { get; }
 
@@ -26,6 +26,7 @@ public sealed class TcpServer
    internal readonly TcpServerOptions Options;
    
    private readonly ServerFrameDispatcher _frameDispatcher = new();
+   private readonly TcpServerConnectionGrouping _grouping = new();
    
    public TcpServer(TcpServerOptions options)
    {
@@ -117,6 +118,7 @@ public sealed class TcpServer
       }
 
       _connections.Clear();
+      _grouping.Clear();
       
       _runTokenSource = new CancellationTokenSource();
       var token = _runTokenSource.Token;
@@ -146,6 +148,7 @@ public sealed class TcpServer
       }
       
       _connections.Clear();
+      _grouping.Clear();
       
       await _runTokenSource.CancelAsync();
       _runTokenSource.Dispose();
@@ -165,6 +168,26 @@ public sealed class TcpServer
 
       _socket?.Dispose();
       _socket = null;
+   }
+
+   public void AddToGroup(string groupName, ITcpConnection connection)
+   {
+      AddToGroup(groupName, (connection as TcpServerConnection) ?? throw new ArgumentException("Invalid connection type"));;
+   }
+
+   public void RemoveFromGroup(string groupName, ITcpConnection connection)
+   {
+      RemoveFromGroup(groupName, (connection as TcpServerConnection) ?? throw new ArgumentException("Invalid connection type"));;
+   }
+
+   internal void AddToGroup(string groupName, TcpServerConnection connection)
+   {
+      _grouping.AddToGroup(groupName, connection);
+   }
+
+   internal void RemoveFromGroup(string groupName, TcpServerConnection connection)
+   {
+      _grouping.RemoveFromGroup(groupName, connection);
    }
 
    /// <summary>

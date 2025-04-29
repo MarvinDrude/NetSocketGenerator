@@ -15,6 +15,7 @@ public sealed class PingProcessor
    }
 
    public async Task Execute(
+      ITcpConnection connection,
       [SocketEventName] string eventName,
       [SocketPayload] PingMessage payload)
    {

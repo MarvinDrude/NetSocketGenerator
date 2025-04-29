@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents a client for managing TCP connections.
 /// </summary>
-public sealed class TcpClient : ITcpConnection
+public sealed class TcpClient : ITcpClient
 {
    /// <summary>
    /// This is not the same id as the server has for this client
