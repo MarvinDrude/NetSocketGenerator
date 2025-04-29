@@ -9,11 +9,19 @@ namespace NetSocketGenerator.Events;
 public abstract class FrameDispatcher<THandler>
 {
    /// <summary>
-   /// Stores handlers categorized by their associated event identifiers.
-   /// Each event identifier maps to a list of handlers that will be invoked
-   /// when a frame with the corresponding identifier is dispatched.
+   /// Represents the root node of a trie structure used for organizing and matching patterns
+   /// against registered event handlers. This serves as the starting point for traversing
+   /// and finding the appropriate handler for a given event identifier in the dispatching process.
    /// </summary>
-   private readonly Dictionary<string, List<THandler>> _handlers = [];
+   private readonly TrieNode<THandler> _treeRoot = new();
+
+   /// <summary>
+   /// Stores a collection of pattern handler entries where the patterns are matched
+   /// against the beginning of event names with wildcard support. This is utilized
+   /// to route events whose identifiers may partially match multiple handlers,
+   /// especially when flexible or dynamic routing is required.
+   /// </summary>
+   private readonly Dictionary<string, PatternHandlerEntry<THandler>> _startWildcardHandlers = [];
 
    /// <summary>
    /// Maintains a list of handlers designated to process raw frames.
@@ -62,15 +70,41 @@ public abstract class FrameDispatcher<THandler>
          return;
       }
 
-      if (frame.Identifier is null 
-          || !_handlers.TryGetValue(frame.Identifier, out var handlers))
-      {
-         return;
-      }
+      var node = _treeRoot;
+      ReadOnlySpan<char> identifier = frame.Identifier;
+      List<Task> tasks = [];
 
-      foreach (var keyHandler in handlers)
+      for (var index = 0; index < identifier.Length; index++)
       {
-         await DispatchKey(frame, connection, keyHandler);
+         if (!node.Children.TryGetValue(identifier[index], out node))
+         {
+            break;
+         }
+
+         foreach (var (pattern, handler) in node.PatternHandlers)
+         {
+            if (!pattern.IsMatch(identifier))
+            {
+               continue;
+            }
+            
+            tasks.Add(DispatchKey(frame, connection, handler));
+         }
+      }
+      
+      await Task.WhenAll(tasks);
+      
+      foreach (var wildcardEntry in _startWildcardHandlers.Values)
+      {
+         if (!wildcardEntry.Pattern.IsMatch(frame.Identifier))
+         {
+            continue;
+         }
+         
+         foreach (var handler in wildcardEntry.Handlers)
+         {
+            await DispatchKey(frame, connection, handler);
+         }
       }
    }
 
@@ -92,10 +126,32 @@ public abstract class FrameDispatcher<THandler>
    /// <param name="handler">The handler to add, which will process frames associated with the specified event name.</param>
    public void AddKeyHandler(string eventName, THandler handler)
    {
-      if (!_handlers.TryGetValue(eventName, out var handlers))
+      var patternInfo = new PatternInfo(Tokenizer.Tokenize(eventName));
+
+      if (patternInfo.StartsWithLiteral)
       {
-         handlers = _handlers[eventName] = [];
+         var literal = patternInfo.FirstLiteral!;
+         var node = _treeRoot;
+
+         foreach (var character in literal)
+         {
+            if (!node.Children.TryGetValue(character, out var next))
+            {
+               next = node.Children[character] = new TrieNode<THandler>();
+            }
+
+            node = next;
+         }
+         
+         node.PatternHandlers.Add(new PatternHandlerPair<THandler>(patternInfo, handler));
+         return;
       }
-      handlers.Add(handler);
+
+      if (!_startWildcardHandlers.TryGetValue(eventName, out var entry))
+      {
+         _startWildcardHandlers[eventName] = entry = new PatternHandlerEntry<THandler>(patternInfo);
+      }
+      
+      entry.Handlers.Add(handler);
    }
 }

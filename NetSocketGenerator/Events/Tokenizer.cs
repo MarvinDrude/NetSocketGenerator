@@ -100,7 +100,7 @@ internal readonly struct Token(
    public static Token CreateLiteral(string literal) => new(TokenType.Literal, literal);
    public static Token CreateAnyChar() => new(TokenType.AnyChar, null);
    public static Token CreateStar() => new(TokenType.Star, null);
-   public static Token CreateCharRange(Span<char> chars) => new(TokenType.CharRange, null);
+   public static Token CreateCharRange(Span<char> chars) => new(TokenType.CharRange, chars.ToString());
    public static Token CreateInvalid() => new(TokenType.Invalid, null);
 }
 

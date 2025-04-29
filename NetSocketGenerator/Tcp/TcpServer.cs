@@ -71,6 +71,11 @@ public sealed class TcpServer
    /// </param>
    public void AddHandler(string key, ServerFrameMessageHandler handler)
    {
+      if (_runTokenSource is not null)
+      {
+         throw new InvalidOperationException("Cannot add handlers while the server is running.");
+      }
+      
       _frameDispatcher.AddKeyHandler(key, handler);
    }
 
@@ -88,6 +93,11 @@ public sealed class TcpServer
    /// </param>
    public void AddRawHandler(ServerFrameMessageHandler handler)
    {
+      if (_runTokenSource is not null)
+      {
+         throw new InvalidOperationException("Cannot add handlers while the server is running.");
+      }
+      
       _frameDispatcher.AddRawHandler(handler);
    }
    
