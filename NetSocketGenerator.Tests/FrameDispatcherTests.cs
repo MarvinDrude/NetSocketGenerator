@@ -25,6 +25,25 @@ public sealed class FrameDispatcherTests
    }
    
    [Test]
+   public async Task SimpleOneHandlerLiteralFirstWithWildcardSuccess()
+   {
+      var fired = false;
+      var dispatcher = new ServerFrameDispatcher();
+      dispatcher.AddKeyHandler("test:*", (connection, id, message) =>
+      {
+         fired = true;
+         return Task.CompletedTask;
+      });
+
+      await dispatcher.Dispatch(new TcpFrame()
+      {
+         Identifier = "test:AAAA43543´´sa?à",
+      }, null!);
+      
+      await Assert.That(fired).IsEqualTo(true);
+   }
+   
+   [Test]
    public async Task SimpleTwoHandlerLiteralFirstSuccess()
    {
       var fired = false;

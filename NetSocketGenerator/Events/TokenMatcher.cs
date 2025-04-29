@@ -37,7 +37,7 @@ internal static class TokenMatcher
       if (token.Type == TokenType.Star)
       {
          // stars, lets just try every possible skip until input is exhausted
-         for (var skip = 0; skip < input.Length - position; skip++)
+         for (var skip = 0; skip <= input.Length - position; skip++)
          {
             if (IsMatchRecursive(input, position + skip, tokens, indexToken + 1))
             {
