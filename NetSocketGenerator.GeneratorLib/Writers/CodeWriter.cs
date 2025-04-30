@@ -1,7 +1,7 @@
 ﻿
 namespace NetSocketGenerator.GeneratorLib.Writers;
 
-internal sealed class CodeWriter : IDisposable
+public sealed class CodeWriter : IDisposable
 {
    private const string DefaultIndent = "\t";
    private const string DefaultNewLine = "\n";

@@ -4,17 +4,37 @@ public sealed partial class ProcessorGenerator
 {
    private static void Render(
       SourceProductionContext context,
-      MaybeProcessorInfo maybeProcessorInfo)
+      MaybeInfo<ProcessorInfo> maybeProcessorInfo)
    {
-      if (maybeProcessorInfo.DiagnosticIds.Count > 0)
+      context.DispatchDiagnostics(Diagnostics, maybeProcessorInfo);
+
+      if (!maybeProcessorInfo.HasValue)
       {
-         foreach (var diagnosticId in maybeProcessorInfo.DiagnosticIds)
-         {
-            var descriptor = Diagnostics[diagnosticId];
-            context.ReportDiagnostic(Diagnostic.Create(descriptor, Location.None));
-         }
+         return;
       }
       
+      var processor = maybeProcessorInfo.Value;
       
+      var token = context.CancellationToken;
+      using var cw = new CodeWriter();
+
+      token.ThrowIfCancellationRequested();
+      
+      cw.WriteLine("#nullable enable");
+      cw.WriteLine();
+      
+      cw.WriteLine("using System;");
+      
+      if(processor.ClassInfo.NameSpace is { } nameSpace)
+      {
+         cw.WriteLine();
+         cw.WriteLine($"namespace {nameSpace};");
+      }
+      cw.WriteLine();
+      
+      
+      
+      token.ThrowIfCancellationRequested();
+      context.AddSource($"{processor.ClassInfo.NameSpace ?? "Global"}.{processor.ClassInfo.Name}.g.cs", cw.ToString());
    }
 }

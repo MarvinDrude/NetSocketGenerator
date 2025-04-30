@@ -12,3 +12,4 @@ global using NetSocketGenerator.GeneratorLib.Enums;
 global using NetSocketGenerator.GeneratorLib.Writers;
 global using NetSocketGenerator.GeneratorLib.Info;
 global using NetSocketGenerator.GeneratorLib.Extensions;
+global using NetSocketGenerator.GeneratorLib.Builders;

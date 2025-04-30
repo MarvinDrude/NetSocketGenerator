@@ -3,7 +3,7 @@ namespace NetSocketGenerator.Generator.Processor;
 
 public sealed partial class ProcessorGenerator
 {
-   private static MaybeProcessorInfo? Transform(
+   private static MaybeInfo<ProcessorInfo>? Transform(
       GeneratorAttributeSyntaxContext context,
       CancellationToken token)
    {
@@ -22,19 +22,20 @@ public sealed partial class ProcessorGenerator
 
       if (processorAttribute.GetStringNamedArgument("EventNamePattern") is not { } eventNamePattern)
       {
-         return GetSingleDiagnosticInfo("NSG001");
+         return DiagnosticBuilder<ProcessorInfo>.CreateSingle("NSG001", classInfo.FullTypeName);
       }
       
       token.ThrowIfCancellationRequested();
 
       if (symbol.GetMembers().GetMethodInfo(IsExecuteMethod) is not { } methodInfo)
       {
-         return GetSingleDiagnosticInfo("NSG001");
+         return DiagnosticBuilder<ProcessorInfo>.CreateSingle("NSG001", classInfo.FullTypeName);
       }
       
       token.ThrowIfCancellationRequested();
       
-      return new MaybeProcessorInfo(
+      return new MaybeInfo<ProcessorInfo>(
+         true,
          new ProcessorInfo(
             classInfo, 
             methodInfo,

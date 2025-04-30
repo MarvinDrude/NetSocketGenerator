@@ -1,7 +1,7 @@
 ﻿namespace NetSocketGenerator.Generator.Processor;
 
 [Generator]
-public sealed partial class ProcessorGenerator
+public sealed partial class ProcessorGenerator : IIncrementalGenerator
 {
    public void Initialize(IncrementalGeneratorInitializationContext context)
    {
@@ -20,6 +20,12 @@ public sealed partial class ProcessorGenerator
          .Where(static e => e is not null)
          .Select(static (x, _) => x!.Value);
 
+      var maybeProcessorInfos = maybeProcessors
+         .Combine(assemblyName);
       
+      context.RegisterSourceOutput(
+         maybeProcessorInfos,
+         static (spc, node) => 
+            Render(spc, node.Left));
    }
 }

@@ -357,6 +357,7 @@ public sealed class TcpServer : ITcpServer
                Id = Guid.CreateVersion7(),
                Socket = socket,
                Server = this,
+               Groups = Groups
             };
          }
          catch (ObjectDisposedException)
