@@ -1,0 +1,9 @@
+﻿{
+   "$schema": "http://json.schemastore.org/launchsettings.json",
+   "profiles": {
+      "SimpleExample": {
+         "commandName": "DebugRoslynComponent",
+         "targetProject": "../NetSocketGenerator.SimpleExample/NetSocketGenerator.SimpleExample.csproj"
+      }
+   }
+}

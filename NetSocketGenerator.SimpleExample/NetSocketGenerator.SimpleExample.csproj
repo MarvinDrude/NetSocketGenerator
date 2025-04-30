@@ -11,4 +11,17 @@
      <ProjectReference Include="..\NetSocketGenerator\NetSocketGenerator.csproj" />
    </ItemGroup>
 
+   <ItemGroup>
+      <ProjectReference
+         Include="..\NetSocketGenerator.GeneratorLib\NetSocketGenerator.GeneratorLib.csproj"
+         OutputItemType="Analyzer"
+         ReferenceOutputAssembly="false"
+         PackagePath="analyzers/dotnet/cs" />
+      <ProjectReference
+         Include="..\NetSocketGenerator.Generator\NetSocketGenerator.Generator.csproj"
+         OutputItemType="Analyzer"
+         ReferenceOutputAssembly="false"
+         PackagePath="analyzers/dotnet/cs" />
+   </ItemGroup>
+
 </Project>

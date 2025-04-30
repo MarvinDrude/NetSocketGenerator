@@ -7,7 +7,7 @@ public sealed partial class ProcessorGenerator
    private const string AttributeSocketPayload = $"{ParameterAttributesNameSpace}.SocketPayloadAttribute";
 
    private const string AttributesNameSpace = "NetSocketGenerator.Attributes";
-   private const string AttributeProcessorFullName = $"{AttributesNameSpace}.ProcessorAttribute";
+   private const string AttributeProcessorFullName = $"{AttributesNameSpace}.SocketProcessorAttribute";
 
    private static AttributeData? GetProcessorAttribute(ImmutableArray<AttributeData> attributes)
    {
@@ -18,7 +18,7 @@ public sealed partial class ProcessorGenerator
    {
       return attributeData.AttributeClass is
       {
-         Name: "ProcessorAttribute"
+         Name: "SocketProcessorAttribute"
       } && IsRelevantAttribute(attributeData);
    }
    

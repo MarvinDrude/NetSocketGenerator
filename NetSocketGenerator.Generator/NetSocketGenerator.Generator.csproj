@@ -20,7 +20,7 @@
    </ItemGroup>
    
    <ItemGroup>
-      <ProjectReference Include="..\NetSocketGenerator.GeneratorLib\NetSocketGenerator.GeneratorLib.csproj" />
+      <ProjectReference Include="..\NetSocketGenerator.GeneratorLib\NetSocketGenerator.GeneratorLib.csproj" PrivateAssets="all" GeneratePathProperty="true" />
    </ItemGroup>
 
 </Project>

@@ -4,7 +4,7 @@ using NetSocketGenerator.Tcp;
 using NetSocketGenerator.Tcp.Frames;
 using NetSocketGenerator.Tcp.Interfaces;
 
-Console.WriteLine("");
+Console.WriteLine("aaa");
 
 [SocketProcessor(
    EventNamePattern = "ping:*",
