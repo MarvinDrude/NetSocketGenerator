@@ -5,7 +5,8 @@ using NetSocketGenerator.Tcp.Frames;
 using NetSocketGenerator.Tcp.Interfaces;
 
 [SocketProcessor(
-   EventNamePattern = "ping:*"
+   EventNamePattern = "ping:*",
+   IncludeClient = false
 )]
 public sealed class PingProcessor
 {
@@ -22,6 +23,7 @@ public sealed class PingProcessor
       if (connection is ITcpServerConnection serverConnection)
       {
          serverConnection.CurrentServer.Groups[""].Send("", "");
+         serverConnection.AddToGroup("");
       }
       
       await Task.CompletedTask;

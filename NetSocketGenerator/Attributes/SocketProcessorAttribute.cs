@@ -21,4 +21,16 @@ public sealed class SocketProcessorAttribute : Attribute
    /// Use this property to specify a consistent naming scheme for events that the attributed class is intended to process.
    /// </remarks>
    public required string EventNamePattern { get; init; }
+
+   /// <summary>
+   /// Optionally set Include Server to false, if you don't want this handler to be on the server
+   /// exention method ServiceCollection.AddSocketServerProcessors() and TcpServer.UseSocketServerProcessors()
+   /// </summary>
+   public bool IncludeServer { get; init; } = true;
+   
+   /// <summary>
+   /// Optionally set Include Client to false, if you don't want this handler to be on the client
+   /// extension method ServiceCollection.AddSocketClientProcessors() and TcpClient.UseSocketClientProcessors()
+   /// </summary>
+   public bool IncludeClient { get; init; } = true;
 }
