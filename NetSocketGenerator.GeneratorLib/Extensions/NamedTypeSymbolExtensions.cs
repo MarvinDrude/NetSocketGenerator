@@ -74,4 +74,24 @@ public static class NamedTypeSymbolExtensions
       
       return new EquatableArray<string>([.. nested]);
    }
+
+   public static bool IsVoidTask(this INamedTypeSymbol symbol)
+   {
+      return symbol is {
+         Name: "Task",
+         ContainingNamespace:
+         {
+            Name: "Tasks",
+            ContainingNamespace:
+            {
+               Name: "Threading",
+               ContainingNamespace:
+               {
+                  Name: "System",
+                  ContainingNamespace.IsGlobalNamespace: true
+               }
+            }
+         }
+      };
+   }
 }

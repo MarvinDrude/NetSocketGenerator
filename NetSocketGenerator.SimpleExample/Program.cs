@@ -4,11 +4,13 @@ using NetSocketGenerator.Tcp;
 using NetSocketGenerator.Tcp.Frames;
 using NetSocketGenerator.Tcp.Interfaces;
 
+Console.WriteLine("");
+
 [SocketProcessor(
    EventNamePattern = "ping:*",
    IncludeClient = false
 )]
-public sealed class PingProcessor
+public sealed partial class PingProcessor
 {
    public PingProcessor()
    {

@@ -25,6 +25,24 @@ public static class AttributeDataExtensions
          classSymbol.Name,
          classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
    }
+
+   public static string? GetStringNamedArgument(
+      this AttributeData attributeData, string argumentName, string? defaultValue = null)
+   {
+      return attributeData
+         .GetNamedArgument(argumentName)?
+         .Value as string ?? defaultValue;
+   }
+   
+   public static bool GetBooleanNamedArgument(
+      this AttributeData attributeData, string argumentName, bool defaultValue)
+   {
+      return attributeData
+         .GetNamedArgument(argumentName)?
+         .Value is bool value
+         ? value
+         : defaultValue;
+   }
    
    public static TypedConstant? GetNamedArgument(
       this AttributeData attributeData, string argumentName)
