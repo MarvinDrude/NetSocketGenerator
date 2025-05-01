@@ -32,10 +32,7 @@ var client = new TcpClient(new TcpClientOptions()
    {
       OnConnected = (connection) =>
       {
-         connection.Send("ping:test", new PingProcessor.PingMessage()
-         {
-            
-         });
+         connection.Send("ping:test", new PingProcessor.PingMessage());
          return Task.CompletedTask;
       }
    }
@@ -49,8 +46,7 @@ while (true)
 }
 
 [SocketProcessor(
-   EventNamePattern = "ping:*",
-   RegistrationGroups = ["System"]
+   EventNamePattern = "ping:*"
 )]
 public sealed partial class PingProcessor
 {
