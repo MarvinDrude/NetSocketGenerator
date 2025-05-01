@@ -1,21 +1,15 @@
-﻿
-namespace NetSocketGenerator.CacheQueue.Server.Processors.Queues;
+﻿namespace NetSocketGenerator.CacheQueue.Server.Processors.Queues;
 
 [SocketProcessor(
-   EventNamePattern = QueueEventNames.Subscribe,
+   EventNamePattern = QueueEventNames.Unsubscribe,
    RegistrationGroups = ["Queue"],
    IncludeClient = false
 )]
-public sealed partial class SubscribeProcessor
+public sealed partial class UnsubscribeProcessor
 {
-   public SubscribeProcessor()
-   {
-      
-   }
-   
    public Task Execute(
       ITcpServerConnection connection,
-      [SocketPayload] QueueSubscribeMessage message)
+      [SocketPayload] QueueUnsubscribeMessage message)
    {
       var queueServer = connection.CurrentServer.GetMetadata<CacheQueueServer>();
 
@@ -26,11 +20,11 @@ public sealed partial class SubscribeProcessor
          {
             if (message.AwaitsAck)
             {
-               connection.Send(QueueEventNames.Subscribe, 
-                  message.CreateAckMessage(new QueueSubscribeAckMessage()
+               connection.Send(QueueEventNames.Unsubscribe, 
+                  message.CreateAckMessage(new QueueUnsubscribeAckMessage()
                   {
                      IsFound = false,
-                     IsSubscribed = false
+                     IsUnsubscribed = true
                   }));
             }
             return Task.CompletedTask;
@@ -40,11 +34,11 @@ public sealed partial class SubscribeProcessor
          
          if (message.AwaitsAck)
          {
-            connection.Send(QueueEventNames.Subscribe, 
-               message.CreateAckMessage(new QueueSubscribeAckMessage()
+            connection.Send(QueueEventNames.Unsubscribe, 
+               message.CreateAckMessage(new QueueUnsubscribeAckMessage()
                {
                   IsFound = true,
-                  IsSubscribed = true
+                  IsUnsubscribed = true
                }));
          }
       }

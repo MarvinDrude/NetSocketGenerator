@@ -2,9 +2,11 @@
 
 public static class QueueEventNames
 {
-   public const string Subscribe = "SUBSCRIBE";
-   public const string Unsubscribe = "UNSUBSCRIBE";
+   public const string Subscribe = "QUEUE_SUBSCRIBE";
+   public const string Unsubscribe = "QUEUE_UNSUBSCRIBE";
    
-   public const string Create = "CREATE_QUEUE";
-   public const string Delete = "DELETE_QUEUE";
+   public const string Create = "QUEUE_CREATE";
+   public const string Delete = "QUEUE_DELETE";
+
+   public const string Publish = "QUEUE_PUBLISH";
 }

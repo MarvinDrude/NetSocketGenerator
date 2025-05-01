@@ -14,4 +14,9 @@ public sealed class ServerQueueDefinition
          ClientId = connectionId
       };
    }
+   
+   public bool RemoveLocalSubscription(Guid connectionId)
+   {
+      return Subscriptions.TryRemove(connectionId, out _);
+   }
 }

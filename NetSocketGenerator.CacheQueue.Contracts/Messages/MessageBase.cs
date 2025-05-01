@@ -4,10 +4,12 @@ public class MessageBase
 {
    public Guid RequestId { get; set; } = Guid.CreateVersion7();
    
-   public bool AwaitsAck { get; set; }
+   public TimeSpan AckTimeout { get; set; } = TimeSpan.FromSeconds(10);
    
+   public bool AwaitsAck { get; set; }
+
    public T CreateAckMessage<T>(T ackMessage) 
-      where T : AckMessageBase, new()
+      where T : AckMessageBase
    {
       ackMessage.AckRequestId = RequestId;
       return ackMessage;

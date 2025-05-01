@@ -12,4 +12,9 @@ public sealed class CacheQueueRegistry
          Name = createParameters.QueueName
       });
    }
+
+   public ServerQueueDefinition? GetLocalQueue(string queueName)
+   {
+      return _localQueues.GetValueOrDefault(queueName);
+   }
 }
