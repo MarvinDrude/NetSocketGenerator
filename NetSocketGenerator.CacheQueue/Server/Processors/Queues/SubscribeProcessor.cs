@@ -15,12 +15,15 @@ public sealed partial class SubscribeProcessor
    
    public async Task Execute(
       ITcpServerConnection connection,
-      [SocketPayload] QueueSubscribeMessage payload)
+      [SocketPayload] QueueSubscribeMessage message)
    {
       var queueServer = connection.CurrentServer.GetMetadata<CacheQueueServer>();
-      
-      
-      await Task.CompletedTask;
+
+      if (!queueServer.Options.IsClustered)
+      {
+         
+         return;
+      }
    }
    
    

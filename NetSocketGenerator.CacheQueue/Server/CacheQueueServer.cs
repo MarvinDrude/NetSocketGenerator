@@ -3,17 +3,19 @@ namespace NetSocketGenerator.CacheQueue.Server;
 
 public sealed class CacheQueueServer
 {
-   private readonly CacheQueueServerOptions _options;
+   internal CacheQueueServerOptions Options { get; }
+   internal CacheQueueRegistry QueueRegistry { get; } = new();
+   
    private readonly TcpServer _server;
    
    public CacheQueueServer(CacheQueueServerOptions options)
    {
-      _options = options;
+      Options = options;
       _server = new TcpServer(new TcpServerOptions()
       {
-         Address = _options.Address,
-         Port = _options.Port,
-         ServiceProvider = _options.ServiceProvider,
+         Address = Options.Address,
+         Port = Options.Port,
+         ServiceProvider = Options.ServiceProvider,
          Serializer = new TcpDynamicJsonSerializer(),
          Events = new TcpEventCallbacks()
          {
