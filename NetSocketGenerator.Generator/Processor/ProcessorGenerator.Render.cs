@@ -163,7 +163,7 @@ public sealed partial class ProcessorGenerator
       }
 
       cw.WriteLine();
-      cw.WriteLine($"var deserialized = connection.Serializer.Deserialize<{parameter.FullTypeName}>(payload.Span);");
+      cw.WriteLine($"var deserialized = connection.Serializer.Deserialize<{parameter.FullTypeName}>(payload.Span, payload);");
       cw.WriteLine("if (deserialized is null)");
       cw.WriteLine($"{{");
       cw.UpIndent();

@@ -63,6 +63,7 @@ public sealed class TcpServer : ITcpServer, ITcpServices
    internal readonly TcpServerOptions Options;
    
    private readonly ServerFrameDispatcher _frameDispatcher = new();
+   public object? MetadataObjectReference { get; set; }
 
    public TcpServer(TcpServerOptions options)
    {
@@ -90,6 +91,11 @@ public sealed class TcpServer : ITcpServer, ITcpServices
       FrameFactory = new TcpFrameFactory();
    }
 
+   public T GetMetadata<T>()
+   {
+      return (T)MetadataObjectReference!;
+   }
+   
    /// <summary>
    /// Creates a new service scope for dependency injection, allowing the resolution
    /// of scoped services within the context of the TCP server operations.

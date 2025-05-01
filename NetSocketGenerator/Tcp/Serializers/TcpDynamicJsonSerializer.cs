@@ -19,7 +19,7 @@ public sealed class TcpDynamicJsonSerializer : ITcpSerializer
       Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
    };
 
-   public T? Deserialize<T>(ReadOnlySpan<byte> source)
+   public T? Deserialize<T>(ReadOnlySpan<byte> source, ReadOnlyMemory<byte> sourceMemory)
    {
       return JsonSerializer.Deserialize<T>(source, JsonOptions);
    }
