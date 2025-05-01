@@ -7,7 +7,8 @@ public sealed partial class ProcessorGenerator
       MethodInfo MethodInfo,
       string EventNamePattern,
       bool IncludeServer,
-      bool IncludeClient)
+      bool IncludeClient,
+      EquatableArray<string> RegistrationGroups)
    {
       public readonly ClassInfo ClassInfo = ClassInfo;
       public readonly MethodInfo MethodInfo = MethodInfo;
@@ -15,5 +16,7 @@ public sealed partial class ProcessorGenerator
       public readonly string EventNamePattern = EventNamePattern;
       public readonly bool IncludeServer = IncludeServer;
       public readonly bool IncludeClient = IncludeClient;
+      
+      public readonly EquatableArray<string> RegistrationGroups = RegistrationGroups;
    }
 }

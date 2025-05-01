@@ -113,6 +113,15 @@ public sealed class TcpServer : ITcpServer, ITcpServices
       return new TcpServiceScope(CreateScope());
    }
 
+   public void UseKeyHandler<T>()
+      where T : ITcpHandler
+   {
+      var handler = Services.GetRequiredService<T>();
+      var method = handler.GetExecuteMethod(true);
+      
+      _frameDispatcher.AddKeyHandler(handler.EventNamePattern, method);
+   }
+   
    /// <summary>
    /// Registers a message handler for a specific key to process incoming frame messages.
    /// </summary>

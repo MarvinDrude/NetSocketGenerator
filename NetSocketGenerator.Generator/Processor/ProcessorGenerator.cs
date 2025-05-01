@@ -20,6 +20,11 @@ public sealed partial class ProcessorGenerator : IIncrementalGenerator
          .Where(static e => e is not null)
          .Select(static (x, _) => x!.Value);
 
+      var allProcessors = maybeProcessors
+         .Where(static e => e.HasValue)
+         .Select(static (x, _) => x.Value)
+         .Collect();
+
       var maybeProcessorInfos = maybeProcessors
          .Combine(assemblyName);
       
@@ -27,5 +32,10 @@ public sealed partial class ProcessorGenerator : IIncrementalGenerator
          maybeProcessorInfos,
          static (spc, node) => 
             Render(spc, node.Left));
+      
+      context.RegisterSourceOutput(
+         allProcessors,
+         static (spc, node) => 
+            RenderExtensions(spc, node));
    }
 }

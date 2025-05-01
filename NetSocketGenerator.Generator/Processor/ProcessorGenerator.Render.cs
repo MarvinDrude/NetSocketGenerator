@@ -36,8 +36,14 @@ public sealed partial class ProcessorGenerator
       cw.WriteLine();
       
       cw.WriteLine(processor.ClassInfo.GetClassString());
+      cw.UpIndent();
+      cw.WriteLine($": ITcpHandler");
+      cw.DownIndent();
       cw.WriteLine($"{{");
       cw.UpIndent();
+
+      cw.WriteLine($"public string EventNamePattern {{ get; }} = \"{processor.EventNamePattern}\";");
+      cw.WriteLine();
       
       token.ThrowIfCancellationRequested();
       
@@ -130,7 +136,7 @@ public sealed partial class ProcessorGenerator
       {
          "global::NetSocketGenerator.Tcp.Interfaces.ITcpConnection" 
             => WriteParameter(writeExpressions, () => WriteConnection(cw, parameterInfo, parameterExpressions), false),
-         "global::NetSocketGenerator.Tcp.Interfaces.ITcpServer" 
+         "global::NetSocketGenerator.Tcp.Interfaces.ITcpServerConnection" 
             => WriteParameter(writeExpressions, () => WriteServerConnection(cw, parameterInfo, parameterExpressions), false),
          "global::NetSocketGenerator.Tcp.Interfaces.ITcpClient" 
             => WriteParameter(writeExpressions, () => WriteClientConnection(cw, parameterInfo, parameterExpressions), false),
@@ -173,7 +179,7 @@ public sealed partial class ProcessorGenerator
       ParameterInfo parameter,
       List<string> parameterExpressions)
    {
-      parameterExpressions.Add("(ITcpServer)connection");
+      parameterExpressions.Add("(ITcpServerConnection)connection");
    }
    private static void WriteClientConnection(
       CodeWriter cw,

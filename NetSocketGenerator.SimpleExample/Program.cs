@@ -1,14 +1,56 @@
 ﻿
+using Microsoft.Extensions.DependencyInjection;
 using NetSocketGenerator.Attributes;
+using NetSocketGenerator.Extensions;
 using NetSocketGenerator.Tcp;
 using NetSocketGenerator.Tcp.Frames;
 using NetSocketGenerator.Tcp.Interfaces;
 
 Console.WriteLine("aaa");
 
+var collection = new ServiceCollection();
+collection.AddSocketClientProcessors();
+collection.AddSocketServerProcessors();
+
+var serviceProvider = collection.BuildServiceProvider();
+
+var server = new TcpServer(new TcpServerOptions()
+{
+   Address = "127.0.0.1",
+   Port = 34533,
+   ServiceProvider = serviceProvider,
+});
+server.UseSocketServerProcessors();
+server.Start();
+
+var client = new TcpClient(new TcpClientOptions()
+{
+   Address = "127.0.0.1",
+   Port = 34533,
+   ServiceProvider = serviceProvider,
+   Events = new TcpEventCallbacks()
+   {
+      OnConnected = (connection) =>
+      {
+         connection.Send("ping:test", new PingProcessor.PingMessage()
+         {
+            
+         });
+         return Task.CompletedTask;
+      }
+   }
+});
+client.UseSocketClientProcessors();
+client.Connect();
+
+while (true)
+{
+   await Task.Delay(1_000);
+}
+
 [SocketProcessor(
    EventNamePattern = "ping:*",
-   IncludeClient = false
+   RegistrationGroups = ["System"]
 )]
 public sealed partial class PingProcessor
 {
@@ -22,16 +64,47 @@ public sealed partial class PingProcessor
       [SocketEventName] string eventName,
       [SocketPayload] PingMessage payload)
    {
-      if (connection is ITcpServerConnection serverConnection)
+      connection.Send("pong:" + "AA", new PongProcessor.PongMessage()
       {
-         serverConnection.CurrentServer.Groups[""].Send("", "");
-         serverConnection.AddToGroup("");
-      }
-      
+         
+      });
+      Console.WriteLine("ping");
       await Task.CompletedTask;
    }
 
    public sealed class PingMessage
+   {
+      
+   }
+}
+
+[SocketProcessor(
+   EventNamePattern = "pong:*",
+   RegistrationGroups = ["System"]
+)]
+public sealed partial class PongProcessor
+{
+   public PongProcessor()
+   {
+      
+   }
+
+   public async Task Execute(
+      ITcpConnection connection,
+      [SocketEventName] string eventName,
+      [SocketPayload] PongMessage payload,
+      PingProcessor testService)
+   {
+      connection.Send("ping:" + "AA", new PingProcessor.PingMessage()
+      {
+         
+      });
+      
+      Console.WriteLine("pong");
+      await Task.CompletedTask;
+   }
+
+   public sealed class PongMessage
    {
       
    }

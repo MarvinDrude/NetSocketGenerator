@@ -10,4 +10,7 @@ public interface ITcpServer
    public void AddToGroup(string groupName, ITcpConnection connection);
 
    public void RemoveFromGroup(string groupName, ITcpConnection connection);
+
+   public void UseKeyHandler<T>()
+      where T : ITcpHandler;
 }

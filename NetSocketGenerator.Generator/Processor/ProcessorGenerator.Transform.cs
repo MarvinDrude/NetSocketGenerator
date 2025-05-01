@@ -33,6 +33,16 @@ public sealed partial class ProcessorGenerator
       }
       
       token.ThrowIfCancellationRequested();
+
+      string[]? groups = null;
+      if (processorAttribute.GetNamedArgument("RegistrationGroups") is { } stringGroups)
+      {
+         groups = stringGroups.Values
+            .Select(el => el.Value as string)
+            .Where(el => el is not null)
+            .Select(el => el!)
+            .ToArray();
+      }
       
       return new MaybeInfo<ProcessorInfo>(
          true,
@@ -41,7 +51,8 @@ public sealed partial class ProcessorGenerator
             methodInfo,
             eventNamePattern,
             processorAttribute.GetBooleanNamedArgument("IncludeServer", true),
-            processorAttribute.GetBooleanNamedArgument("IncludeClient", true)), 
+            processorAttribute.GetBooleanNamedArgument("IncludeClient", true),
+            new EquatableArray<string>(groups ?? [])),
          []);
    }
    
