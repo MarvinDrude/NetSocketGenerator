@@ -1,4 +1,5 @@
-﻿namespace NetSocketGenerator.CacheQueue.Server.Processors.Queues;
+﻿
+namespace NetSocketGenerator.CacheQueue.Server.Processors.Queues;
 
 [SocketProcessor(
    EventNamePattern = QueueEventNames.Create,
@@ -7,6 +8,14 @@
 )]
 public sealed partial class CreateQueueProcessor
 {
+   private readonly ILogger<CreateQueueProcessor> _logger;
+
+   public CreateQueueProcessor(
+      ILogger<CreateQueueProcessor> logger)
+   {
+      _logger = logger;
+   }
+   
    public Task Execute(
       ITcpServerConnection connection,
       [SocketPayload] QueueCreateMessage message)
@@ -24,7 +33,8 @@ public sealed partial class CreateQueueProcessor
 
          if (message.AwaitsAck)
          {
-            connection.Send(QueueEventNames.Create, message.CreateAckMessage(new QueueCreateAckMessage()));
+            connection.Send(QueueEventNames.Create, 
+               message.CreateAckMessage(new QueueCreateAckMessage()));
          }
       }
          

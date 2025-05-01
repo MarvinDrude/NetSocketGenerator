@@ -1,5 +1,6 @@
 ﻿<Solution>
   <Folder Name="/Examples/">
+    <Project Path="NetSocketGenerator.CacheQueue.LocalRunner\NetSocketGenerator.CacheQueue.LocalRunner.csproj" Type="Classic C#" />
     <Project Path="NetSocketGenerator.SimpleExample\NetSocketGenerator.SimpleExample.csproj" Type="Classic C#" />
   </Folder>
   <Folder Name="/Generators/">

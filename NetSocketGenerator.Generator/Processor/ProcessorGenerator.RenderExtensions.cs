@@ -32,7 +32,7 @@ public sealed partial class ProcessorGenerator
 
       foreach (var keypair in groups)
       {
-         cw.WriteLine($"public static ServiceCollection AddSocket{keypair.Key}Processors(this ServiceCollection services)");
+         cw.WriteLine($"public static IServiceCollection AddSocket{keypair.Key}Processors(this IServiceCollection services)");
          cw.WriteLine($"{{");
          cw.UpIndent();
 

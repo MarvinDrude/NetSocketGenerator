@@ -13,6 +13,9 @@ global using System.Security.Authentication;
 global using System.Text;
 global using System.Buffers.Binary;
 
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.DependencyInjection;
+
 global using NetSocketGenerator.Enums;
 global using NetSocketGenerator.Extensions;
 global using NetSocketGenerator.Helpers;

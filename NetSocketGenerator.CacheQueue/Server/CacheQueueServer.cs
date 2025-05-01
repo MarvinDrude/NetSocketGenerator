@@ -1,15 +1,21 @@
 ﻿
 namespace NetSocketGenerator.CacheQueue.Server;
 
-public sealed class CacheQueueServer
+public sealed partial class CacheQueueServer
 {
    internal CacheQueueServerOptions Options { get; }
    internal CacheQueueRegistry QueueRegistry { get; } = new();
    
    private readonly TcpServer _server;
+
+   private readonly ILogger<CacheQueueServer> _logger;
    
-   public CacheQueueServer(CacheQueueServerOptions options)
+   public CacheQueueServer(
+      ILogger<CacheQueueServer> logger,
+      CacheQueueServerOptions options)
    {
+      _logger = logger;
+      
       Options = options;
       _server = new TcpServer(new TcpServerOptions()
       {
@@ -26,11 +32,14 @@ public sealed class CacheQueueServer
       {
          MetadataObjectReference = this
       };
+
+      _server.UseSocketServerQueueProcessors();
    }
 
    public void Start()
    {
       _server.Start();
+      LogStart(Options.ClusterOptions.CurrentNodeName, Options.Address, Options.Port, Options.IsClustered);
    }
 
    public async Task Stop()
