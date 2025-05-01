@@ -10,11 +10,46 @@ namespace NetSocketGenerator.Tcp;
 /// It manages the lifecycle of the server, including binding to an endpoint,
 /// handling multiple connections, and providing a secure or insecure communication layer.
 /// </remarks>
-public sealed class TcpServer : ITcpServer
+public sealed class TcpServer : ITcpServer, ITcpServices
 {
+   /// <summary>
+   /// Specifies the type of connection utilized by the TCP server.
+   /// </summary>
+   /// <remarks>
+   /// The <see cref="ConnectionType"/> property indicates how the TCP server manages connections,
+   /// which may be one of the values from the <see cref="NetSocketGenerator.Enums.TcpConnectionType"/> enumeration.
+   /// These values include:
+   /// - Unset: No specific connection type is assigned.
+   /// - FastSocket: Optimized socket connection is used.
+   /// - NetworkStream: A basic network stream is utilized for the connection.
+   /// - SslStream: An SSL-encrypted stream is used for secure communication.
+   /// The connection type is determined based on the <see cref="TcpServerOptions"/> provided during the server's initialization.
+   /// </remarks>
    public TcpConnectionType ConnectionType { get; }
 
+   /// <summary>
+   /// Provides functionality to manage groups of TCP server connections.
+   /// </summary>
+   /// <remarks>
+   /// The <see cref="Groups"/> property allows managing connections by grouping them under
+   /// specific group names. It supports operations such as adding or removing connections
+   /// from groups, which can simplify handling and communication with subsets of connections.
+   /// Connections can be associated with one or more groups, enabling efficient message
+   /// broadcasting or selective management. This is particularly useful in multi-client
+   /// scenarios where clients need to be categorized or organized functionally.
+   /// </remarks>
    public TcpServerConnectionGrouping Groups { get; } = new();
+
+   /// <summary>
+   /// Provides access to the dependency injection service container used by the TCP server.
+   /// </summary>
+   /// <remarks>
+   /// The <see cref="Services"/> property retrieves the <see cref="IServiceProvider"/> implementation
+   /// configured during the initialization of the TCP server, allowing for the resolution of required
+   /// services or dependencies. This property is primarily used internally to inject and manage resources
+   /// such as handlers, factories, and other server-specific configurations.
+   /// </remarks>
+   public IServiceProvider Services => Options.ServiceProvider;
 
    private readonly ConcurrentDictionary<Guid, TcpServerConnection> _connections = [];
    private CancellationTokenSource? _runTokenSource;
@@ -53,6 +88,24 @@ public sealed class TcpServer : ITcpServer
       
       _connectionFactory = CreateFactory(ConnectionType, options);
       FrameFactory = new TcpFrameFactory();
+   }
+
+   /// <summary>
+   /// Creates a new service scope for dependency injection, allowing the resolution
+   /// of scoped services within the context of the TCP server operations.
+   /// </summary>
+   /// <remarks>
+   /// This method delegates the creation of a scope to the underlying service provider.
+   /// Each created scope provides an isolated service composition for use with
+   /// dependent operations that require scoped service lifetimes.
+   /// </remarks>
+   /// <returns>
+   /// An instance of <see cref="IServiceScope"/> that represents the newly created service scope.
+   /// The caller is responsible for disposing the scope when it is no longer needed.
+   /// </returns>
+   public IServiceScope CreateScope()
+   {
+      return Options.ServiceProvider.CreateScope();
    }
 
    /// <summary>

@@ -10,6 +10,15 @@
 public class TcpOptions
 {
    /// <summary>
+   /// Gets the service provider instance used for resolving dependencies.
+   /// </summary>
+   /// <remarks>
+   /// This property provides an implementation of <see cref="IServiceProvider"/> that is required
+   /// to resolve services or dependencies needed during the lifetime of the TCP connection.
+   /// </remarks>
+   public required IServiceProvider ServiceProvider { get; init; }
+   
+   /// <summary>
    /// Gets the target address for the TCP connection.
    /// </summary>
    /// <remarks>

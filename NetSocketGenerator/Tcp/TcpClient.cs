@@ -3,12 +3,18 @@
 /// <summary>
 /// Represents a client for managing TCP connections.
 /// </summary>
-public sealed class TcpClient : ITcpClient
+public sealed class TcpClient : ITcpClient, ITcpServices
 {
    /// <summary>
    /// This is not the same id as the server has for this client
    /// </summary>
    public Guid Id { get; } = Guid.NewGuid();
+
+   /// <summary>
+   /// Provides an instance of <see cref="IServiceProvider"/> used for managing
+   /// service dependencies and resolving services within the context of TCP operations.
+   /// </summary>
+   public IServiceProvider Services => _options.ServiceProvider;
    
    public TcpConnectionType ConnectionType { get; }
    public bool IsConnected { get; private set; }
@@ -249,6 +255,22 @@ public sealed class TcpClient : ITcpClient
       {
          await _options.Events.OnDisconnected(this);
       }
+   }
+
+   /// <summary>
+   /// Creates and returns a new <see cref="IServiceScope"/> for managing the scope of services.
+   /// </summary>
+   /// <remarks>
+   /// This method is used to create a new service scope, which can be used to resolve scoped services.
+   /// It ensures that resources scoped to the created scope are properly disposed when the scope is disposed.
+   /// </remarks>
+   /// <returns>
+   /// An instance of <see cref="IServiceScope"/> representing the created scope. The caller is responsible
+   /// for disposing the scope to release resources.
+   /// </returns>
+   public IServiceScope CreateScope()
+   {
+      return _options.ServiceProvider.CreateScope();
    }
 
    /// <summary>
