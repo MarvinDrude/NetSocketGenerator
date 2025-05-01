@@ -108,6 +108,11 @@ public sealed class TcpServer : ITcpServer, ITcpServices
       return Options.ServiceProvider.CreateScope();
    }
 
+   public TcpServiceScope CreateTcpScope()
+   {
+      return new TcpServiceScope(CreateScope());
+   }
+
    /// <summary>
    /// Registers a message handler for a specific key to process incoming frame messages.
    /// </summary>

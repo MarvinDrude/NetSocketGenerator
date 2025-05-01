@@ -5,6 +5,13 @@ public interface ITcpConnection
    public Guid Id { get; }
 
    /// <summary>
+   /// Gets the serializer used for serializing and deserializing data sent or received
+   /// over the TCP connection. This property facilitates encoding and decoding objects
+   /// to and from their binary representation.
+   /// </summary>
+   public ITcpSerializer Serializer { get; }
+   
+   /// <summary>
    /// Sends data over the current TCP connection.
    /// </summary>
    /// <param name="identifier">The unique identifier for the data being sent.</param>

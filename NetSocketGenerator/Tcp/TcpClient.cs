@@ -15,6 +15,8 @@ public sealed class TcpClient : ITcpClient, ITcpServices
    /// service dependencies and resolving services within the context of TCP operations.
    /// </summary>
    public IServiceProvider Services => _options.ServiceProvider;
+
+   public ITcpSerializer Serializer => _options.Serializer;
    
    public TcpConnectionType ConnectionType { get; }
    public bool IsConnected { get; private set; }
@@ -273,6 +275,11 @@ public sealed class TcpClient : ITcpClient, ITcpServices
       return _options.ServiceProvider.CreateScope();
    }
 
+   public TcpServiceScope CreateTcpScope()
+   {
+      return new TcpServiceScope(CreateScope());
+   }
+   
    /// <summary>
    /// Handles the internal process of disconnecting from the active TCP connection,
    /// ensuring resource cleanup, and automatically attempts to reconnect after a set interval.

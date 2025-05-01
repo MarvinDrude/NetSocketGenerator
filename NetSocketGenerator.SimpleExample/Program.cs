@@ -20,7 +20,7 @@ public sealed partial class PingProcessor
    public async Task Execute(
       ITcpConnection connection,
       [SocketEventName] string eventName,
-      [SocketPayload] ReadOnlyMemory<byte> payload)
+      [SocketPayload] PingMessage payload)
    {
       if (connection is ITcpServerConnection serverConnection)
       {

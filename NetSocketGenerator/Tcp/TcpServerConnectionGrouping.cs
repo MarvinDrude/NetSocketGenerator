@@ -66,6 +66,8 @@ internal sealed class TcpServerConnectionGroup : ITcpConnection
    
    public required TcpServer Server { get; init; }
    
+   public ITcpSerializer Serializer => Server.Options.Serializer;
+   
    public int ConnectionCount => _connections.Count;
    
    private readonly ConcurrentDictionary<Guid, TcpServerConnection> _connections = [];

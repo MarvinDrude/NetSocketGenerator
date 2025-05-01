@@ -6,4 +6,6 @@ public interface ITcpServices
    public IServiceProvider Services { get; }
 
    public IServiceScope CreateScope();
+
+   public TcpServiceScope CreateTcpScope();
 }

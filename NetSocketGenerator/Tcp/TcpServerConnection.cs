@@ -16,6 +16,8 @@ public sealed class TcpServerConnection
    public required TcpServerConnectionGrouping Groups { get; init; }
    
    public ITcpServer CurrentServer => Server;
+
+   public ITcpSerializer Serializer => Server.Options.Serializer;
    
    public Stream? Stream { get; set; }
    
