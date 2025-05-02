@@ -2,6 +2,11 @@
 
 public sealed class QueueModule(CacheQueueClient client)
 {
+   public void AddHandler<T>(string queueName, QueuePublishDelegate<T> handler)
+   {
+      
+   }
+   
    public Task<TOutput?> PublishAndReceive<TInput, TOutput>(string queueName, TInput contents)
    {
       var message = new QueuePublishMessage<TInput>()

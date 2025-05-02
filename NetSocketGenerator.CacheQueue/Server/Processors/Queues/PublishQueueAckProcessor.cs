@@ -1,0 +1,32 @@
+﻿using System.Text.Json;
+
+namespace NetSocketGenerator.CacheQueue.Server.Processors.Queues;
+
+[SocketProcessor(
+   EventNamePattern = QueueEventNames.PublishAck,
+   RegistrationGroups = ["Queue"],
+   IncludeClient = false
+)]
+public sealed partial class PublishQueueAckProcessor
+{
+   private readonly ILogger<PublishQueueAckProcessor> _logger;
+
+   public PublishQueueAckProcessor(
+      ILogger<PublishQueueAckProcessor> logger)
+   {
+      _logger = logger;
+   }
+   
+   public async Task Execute(
+      ITcpServerConnection connection,
+      [SocketPayload] QueuePublishConsumerAckMessage<JsonElement> message)
+   {
+      var queueServer = connection.CurrentServer.GetMetadata<CacheQueueServer>();
+      using var scope = _logger.BeginScope(queueServer.NodeName);
+      
+      if (!queueServer.Options.IsClustered)
+      {
+         queueServer.AckContainer.TrySetResult(message.AckRequestId, message);
+      }
+   }
+}

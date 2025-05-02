@@ -10,7 +10,8 @@ public sealed partial class CacheQueueServer : IAsyncDisposable
    
    internal ConcurrentDictionary<Guid, ServerClientProperties> Clients { get; } = [];
    
-   private readonly TcpServer _server;
+   internal readonly TcpServer Tcp;
+   internal readonly AckContainer AckContainer = new();
 
    private readonly ILogger<CacheQueueServer> _logger;
    
@@ -21,7 +22,7 @@ public sealed partial class CacheQueueServer : IAsyncDisposable
       _logger = logger;
       
       Options = options;
-      _server = new TcpServer(new TcpServerOptions()
+      Tcp = new TcpServer(new TcpServerOptions()
       {
          Address = Options.Address,
          Port = Options.Port,
@@ -37,18 +38,18 @@ public sealed partial class CacheQueueServer : IAsyncDisposable
          MetadataObjectReference = this
       };
 
-      _server.UseSocketServerQueueProcessors();
+      Tcp.UseSocketServerQueueProcessors();
    }
 
    public void Start()
    {
-      _server.Start();
+      Tcp.Start();
       LogStart(Options.ClusterOptions.CurrentNodeName, Options.Address, Options.Port, Options.IsClustered);
    }
 
    public async Task Stop()
    {
-      await _server.Stop();
+      await Tcp.Stop();
       Clients.Clear();
    }
    
@@ -72,7 +73,7 @@ public sealed partial class CacheQueueServer : IAsyncDisposable
 
    internal ITcpServerConnection? GetConnection(Guid connectionId)
    {
-      return _server.GetConnection(connectionId);
+      return Tcp.GetConnection(connectionId);
    }
    
    public async ValueTask DisposeAsync()
