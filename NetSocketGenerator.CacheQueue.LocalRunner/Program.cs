@@ -50,8 +50,14 @@ testClient.Connect();
 await Task.Delay(1000);
 //testClient.QueueCreateNoAck("Messages");
 
-var w = await testClient.QueueCreate("Messages");
-_ = "";
+const string queueName = "Messages";
+
+await testClient.Queue.Create(queueName);
+await testClient.Queue.Subscribe(queueName);
+await testClient.Queue.Unsubscribe(queueName);
+await testClient.Queue.Delete(queueName);
+
+Console.WriteLine("Finished");
 
 while (true)
 {

@@ -21,6 +21,9 @@ public sealed partial class DeleteQueueProcessor
       [SocketPayload] QueueDeleteMessage message)
    {
       var queueServer = connection.CurrentServer.GetMetadata<CacheQueueServer>();
+      using var scope = _logger.BeginScope(queueServer.NodeName);
+      
+      LogQueueDelete(message.QueueName);
 
       if (!queueServer.Options.IsClustered)
       {
@@ -28,7 +31,7 @@ public sealed partial class DeleteQueueProcessor
 
          if (definition is not null)
          {
-            
+            // maybe notify
          }
          
          if (message.AwaitsAck)

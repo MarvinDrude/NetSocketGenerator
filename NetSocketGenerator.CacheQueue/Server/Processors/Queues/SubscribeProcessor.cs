@@ -8,9 +8,12 @@ namespace NetSocketGenerator.CacheQueue.Server.Processors.Queues;
 )]
 public sealed partial class SubscribeProcessor
 {
-   public SubscribeProcessor()
+   private readonly ILogger<SubscribeProcessor> _logger;
+   
+   public SubscribeProcessor(
+      ILogger<SubscribeProcessor> logger)
    {
-      
+      _logger = logger;
    }
    
    public Task Execute(
@@ -18,7 +21,10 @@ public sealed partial class SubscribeProcessor
       [SocketPayload] QueueSubscribeMessage message)
    {
       var queueServer = connection.CurrentServer.GetMetadata<CacheQueueServer>();
+      using var scope = _logger.BeginScope(queueServer.NodeName);
 
+      LogQueueSubscribe(message.QueueName);
+      
       if (!queueServer.Options.IsClustered)
       {
          if (queueServer.QueueRegistry.GetLocalQueue(message.QueueName) 

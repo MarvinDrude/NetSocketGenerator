@@ -8,11 +8,22 @@ namespace NetSocketGenerator.CacheQueue.Server.Processors.Queues;
 )]
 public sealed partial class UnsubscribeProcessor
 {
+   private readonly ILogger<UnsubscribeProcessor> _logger;
+   
+   public UnsubscribeProcessor(
+      ILogger<UnsubscribeProcessor> logger)
+   {
+      _logger = logger;
+   }
+   
    public Task Execute(
       ITcpServerConnection connection,
       [SocketPayload] QueueUnsubscribeMessage message)
    {
       var queueServer = connection.CurrentServer.GetMetadata<CacheQueueServer>();
+      using var scope = _logger.BeginScope(queueServer.NodeName);
+      
+      LogQueueUnsubscribe(message.QueueName);
 
       if (!queueServer.Options.IsClustered)
       {

@@ -34,3 +34,4 @@ global using NetSocketGenerator.Acknowledge;
 
 global using NetSocketGenerator.CacheQueue.Contracts.Messages.Queues;
 global using NetSocketGenerator.CacheQueue.Contracts.Constants;
+global using NetSocketGenerator.CacheQueue.Client.Modules;
