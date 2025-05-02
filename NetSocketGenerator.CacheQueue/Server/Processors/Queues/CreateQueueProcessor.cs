@@ -1,6 +1,4 @@
 ﻿
-using NetSocketGenerator.CacheQueue.Contracts.Constants;
-
 namespace NetSocketGenerator.CacheQueue.Server.Processors.Queues;
 
 [SocketProcessor(
@@ -23,10 +21,13 @@ public sealed partial class CreateQueueProcessor
       [SocketPayload] QueueCreateMessage message)
    {
       var queueServer = connection.CurrentServer.GetMetadata<CacheQueueServer>();
+      using var scope = _logger.BeginScope(queueServer.NodeName);
+      
+      LogCreateQueue(message.QueueName, message.SubscribeImmediately);
 
       if (!queueServer.Options.IsClustered)
       {
-         var queueDefinition = queueServer.QueueRegistry.CreateLocalQueue(message);
+         var queueDefinition = queueServer.QueueRegistry.CreateLocalQueue(message, queueServer);
 
          if (message.SubscribeImmediately)
          {

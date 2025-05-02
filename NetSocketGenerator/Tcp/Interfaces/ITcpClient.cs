@@ -6,4 +6,6 @@ public interface ITcpClient : ITcpConnection
 
    public void UseKeyHandler<T>()
       where T : ITcpHandler;
+   
+   public T GetMetadata<T>();
 }

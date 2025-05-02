@@ -11,7 +11,7 @@ public sealed class TcpDynamicJsonSerializer : ITcpSerializer
       IncludeFields = true,
       PropertyNameCaseInsensitive = true,
       Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-      PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+      PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
    };
 
    private static readonly JsonWriterOptions WriterOptions = new() {

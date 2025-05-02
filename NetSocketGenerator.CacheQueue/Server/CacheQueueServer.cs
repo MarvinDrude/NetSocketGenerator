@@ -3,6 +3,8 @@ namespace NetSocketGenerator.CacheQueue.Server;
 
 public sealed partial class CacheQueueServer : IAsyncDisposable
 {
+   public string NodeName => Options.ClusterOptions.CurrentNodeName;
+   
    internal CacheQueueServerOptions Options { get; }
    internal CacheQueueRegistry QueueRegistry { get; } = new();
    

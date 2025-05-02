@@ -7,4 +7,6 @@ public sealed class CacheQueueClientOptions
    public required int Port { get; init; }
    
    public required IServiceProvider ServiceProvider { get; init; }
+   
+   public TimeSpan ServerAckTimeout { get; set; } = TimeSpan.FromSeconds(10);
 }

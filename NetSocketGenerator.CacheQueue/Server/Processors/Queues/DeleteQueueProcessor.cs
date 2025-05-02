@@ -1,5 +1,4 @@
-﻿using NetSocketGenerator.CacheQueue.Contracts.Constants;
-
+﻿
 namespace NetSocketGenerator.CacheQueue.Server.Processors.Queues;
 
 [SocketProcessor(
@@ -19,23 +18,27 @@ public sealed partial class DeleteQueueProcessor
    
    public Task Execute(
       ITcpServerConnection connection,
-      [SocketPayload] QueueCreateMessage message)
+      [SocketPayload] QueueDeleteMessage message)
    {
       var queueServer = connection.CurrentServer.GetMetadata<CacheQueueServer>();
 
       if (!queueServer.Options.IsClustered)
       {
-         var queueDefinition = queueServer.QueueRegistry.CreateLocalQueue(message);
+         var definition = queueServer.QueueRegistry.DeleteLocalQueue(message.QueueName);
 
-         if (message.SubscribeImmediately)
+         if (definition is not null)
          {
-            queueDefinition.AddLocalSubscription(connection.Id);
+            
          }
-
+         
          if (message.AwaitsAck)
          {
             connection.Send(QueueEventNames.Create, 
-               message.CreateAckMessage(new QueueCreateAckMessage()));
+               message.CreateAckMessage(new QueueDeleteAckMessage()
+               {
+                  IsDeleted = true,
+                  IsFound = definition is not null
+               }));
          }
       }
          

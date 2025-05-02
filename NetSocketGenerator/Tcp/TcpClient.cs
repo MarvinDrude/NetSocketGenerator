@@ -20,6 +20,8 @@ public sealed class TcpClient : ITcpClient, ITcpServices
    
    public TcpConnectionType ConnectionType { get; }
    public bool IsConnected { get; private set; }
+   
+   public object? MetadataObjectReference { get; set; }
 
    private readonly EndPoint _endPoint;
    private readonly TcpClientOptions _options;
@@ -65,6 +67,11 @@ public sealed class TcpClient : ITcpClient, ITcpServices
       _frameFactory = new TcpFrameFactory();
    }
 
+   public T GetMetadata<T>()
+   {
+      return (T)MetadataObjectReference!;
+   }
+   
    public bool Send(string identifier, string rawData)
    {
       return Send(identifier, Encoding.UTF8.GetBytes(rawData));

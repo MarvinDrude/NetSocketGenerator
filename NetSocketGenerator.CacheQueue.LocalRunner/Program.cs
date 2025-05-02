@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NetSocketGenerator.CacheQueue.Client;
+using NetSocketGenerator.CacheQueue.Client.Extensions;
 using NetSocketGenerator.CacheQueue.Configuration.Server;
 using NetSocketGenerator.CacheQueue.Extensions;
 using NetSocketGenerator.CacheQueue.Server;
@@ -8,7 +10,7 @@ using Serilog.Sinks.SystemConsole.Themes;
 
 const string template = "[{Timestamp:HH:mm:ss} {Level:u3}]{Scope:lj} {Message:lj}{NewLine}{Exception}";
 var log = new LoggerConfiguration()
-   .MinimumLevel.Information()
+   .MinimumLevel.Debug()
    .Enrich.FromLogContext()
    .WriteTo.Console(theme: AnsiConsoleTheme.Code, outputTemplate: template)
    .CreateLogger();
@@ -22,6 +24,7 @@ collection.AddLogging(lb =>
    lb.AddSerilog(log);
 });
 collection.AddCacheQueue();
+collection.AddCacheQueueClient();
 
 var serviceProvider = collection.BuildServiceProvider();
 
@@ -34,6 +37,21 @@ var localCacheQueue = new CacheQueueServer(
       Port = 34444,
    });
 localCacheQueue.Start();
+
+var testClient = new CacheQueueClient(new CacheQueueClientOptions()
+{
+   Address = "127.0.0.1",
+   Port = 34444,
+   ServiceProvider = serviceProvider,
+   ServerAckTimeout = TimeSpan.FromSeconds(10)
+});
+testClient.Connect();
+
+await Task.Delay(1000);
+//testClient.QueueCreateNoAck("Messages");
+
+var w = await testClient.QueueCreate("Messages");
+_ = "";
 
 while (true)
 {

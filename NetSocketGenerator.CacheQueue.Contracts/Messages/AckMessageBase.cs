@@ -2,7 +2,7 @@
 
 public class AckMessageBase
 {
-   public Guid RequestId { get; set; } = Guid.CreateVersion7();
+   public Guid RequestId { get; } = Guid.CreateVersion7();
    
    public Guid AckRequestId { get; set; }
 }

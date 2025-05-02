@@ -15,6 +15,7 @@
    </ItemGroup>
 
    <ItemGroup>
+     <ProjectReference Include="..\NetSocketGenerator.CacheQueue.Client\NetSocketGenerator.CacheQueue.Client.csproj" />
      <ProjectReference Include="..\NetSocketGenerator.CacheQueue\NetSocketGenerator.CacheQueue.csproj" />
    </ItemGroup>
 

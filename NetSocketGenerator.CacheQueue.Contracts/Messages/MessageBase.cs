@@ -2,8 +2,8 @@
 
 public class MessageBase
 {
-   public Guid RequestId { get; set; } = Guid.CreateVersion7();
-   
+   public Guid RequestId { get; init; } = Guid.CreateVersion7();
+
    public TimeSpan AckTimeout { get; set; } = TimeSpan.FromSeconds(10);
    
    public bool AwaitsAck { get; set; }
