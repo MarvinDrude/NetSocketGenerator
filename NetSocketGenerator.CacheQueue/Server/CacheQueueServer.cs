@@ -1,7 +1,7 @@
 ﻿
 namespace NetSocketGenerator.CacheQueue.Server;
 
-public sealed partial class CacheQueueServer
+public sealed partial class CacheQueueServer : IAsyncDisposable
 {
    internal CacheQueueServerOptions Options { get; }
    internal CacheQueueRegistry QueueRegistry { get; } = new();
@@ -55,5 +55,10 @@ public sealed partial class CacheQueueServer
    private async Task OnClientDisconnected(ITcpConnection connection)
    {
       
+   }
+
+   public async ValueTask DisposeAsync()
+   {
+      await Stop();
    }
 }

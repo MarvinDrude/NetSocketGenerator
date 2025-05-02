@@ -1,4 +1,6 @@
-﻿namespace NetSocketGenerator.CacheQueue.Server.Processors.Queues;
+﻿using NetSocketGenerator.CacheQueue.Contracts.Constants;
+
+namespace NetSocketGenerator.CacheQueue.Server.Processors.Queues;
 
 [SocketProcessor(
    EventNamePattern = QueueEventNames.Unsubscribe,
@@ -30,14 +32,14 @@ public sealed partial class UnsubscribeProcessor
             return Task.CompletedTask;
          }
          
-         queue.AddLocalSubscription(connection.Id);
+         var found = queue.RemoveLocalSubscription(connection.Id);
          
          if (message.AwaitsAck)
          {
             connection.Send(QueueEventNames.Unsubscribe, 
                message.CreateAckMessage(new QueueUnsubscribeAckMessage()
                {
-                  IsFound = true,
+                  IsFound = found,
                   IsUnsubscribed = true
                }));
          }

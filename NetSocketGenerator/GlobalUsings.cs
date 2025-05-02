@@ -29,3 +29,4 @@ global using NetSocketGenerator.Internal;
 global using NetSocketGenerator.Tcp;
 global using NetSocketGenerator.Tcp.Serializers;
 global using NetSocketGenerator.Tcp.Services;
+global using NetSocketGenerator.Acknowledge;

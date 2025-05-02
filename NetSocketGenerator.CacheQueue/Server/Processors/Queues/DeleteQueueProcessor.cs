@@ -1,19 +1,18 @@
-﻿
-using NetSocketGenerator.CacheQueue.Contracts.Constants;
+﻿using NetSocketGenerator.CacheQueue.Contracts.Constants;
 
 namespace NetSocketGenerator.CacheQueue.Server.Processors.Queues;
 
 [SocketProcessor(
-   EventNamePattern = QueueEventNames.Create,
+   EventNamePattern = QueueEventNames.Delete,
    RegistrationGroups = ["Queue"],
    IncludeClient = false
 )]
-public sealed partial class CreateQueueProcessor
+public sealed partial class DeleteQueueProcessor
 {
-   private readonly ILogger<CreateQueueProcessor> _logger;
+   private readonly ILogger<DeleteQueueProcessor> _logger;
 
-   public CreateQueueProcessor(
-      ILogger<CreateQueueProcessor> logger)
+   public DeleteQueueProcessor(
+      ILogger<DeleteQueueProcessor> logger)
    {
       _logger = logger;
    }

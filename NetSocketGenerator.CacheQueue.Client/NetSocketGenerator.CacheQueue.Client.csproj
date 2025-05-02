@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+   <PropertyGroup>
+      <TargetFramework>net10.0</TargetFramework>
+      <ImplicitUsings>enable</ImplicitUsings>
+      <Nullable>enable</Nullable>
+   </PropertyGroup>
+
+   <ItemGroup>
+      <ProjectReference Include="..\NetSocketGenerator.CacheQueue.Contracts\NetSocketGenerator.CacheQueue.Contracts.csproj" />
+      <ProjectReference Include="..\NetSocketGenerator\NetSocketGenerator.csproj" />
+   </ItemGroup>
+
+   <ItemGroup>
+      <ProjectReference
+         Include="..\NetSocketGenerator.GeneratorLib\NetSocketGenerator.GeneratorLib.csproj"
+         OutputItemType="Analyzer"
+         ReferenceOutputAssembly="false"
+         PackagePath="analyzers/dotnet/cs" />
+      <ProjectReference
+         Include="..\NetSocketGenerator.Generator\NetSocketGenerator.Generator.csproj"
+         OutputItemType="Analyzer"
+         ReferenceOutputAssembly="false"
+         PackagePath="analyzers/dotnet/cs" />
+   </ItemGroup>
+
+</Project>

@@ -1,4 +1,4 @@
-﻿namespace NetSocketGenerator.CacheQueue.Constants;
+﻿namespace NetSocketGenerator.CacheQueue.Contracts.Constants;
 
 public static class QueueEventNames
 {
