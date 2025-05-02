@@ -31,7 +31,10 @@ public sealed partial class DeleteQueueProcessor
 
          if (definition is not null)
          {
-            // maybe notify
+            foreach (var subscription in definition.Subscriptions)
+            {
+               definition.RemoveLocalSubscription(subscription.Key);
+            }
          }
          
          if (message.AwaitsAck)

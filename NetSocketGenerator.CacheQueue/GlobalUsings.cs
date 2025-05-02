@@ -31,6 +31,7 @@ global using NetSocketGenerator.Tcp;
 global using NetSocketGenerator.Tcp.Serializers;
 global using NetSocketGenerator.Tcp.Services;
 global using NetSocketGenerator.Attributes;
+global using NetSocketGenerator.Acknowledge;
 
 global using NetSocketGenerator.CacheQueue.Configuration.Server;
 global using NetSocketGenerator.CacheQueue.Serializers;
@@ -39,3 +40,4 @@ global using NetSocketGenerator.CacheQueue.Contracts.Messages.Queues;
 global using NetSocketGenerator.CacheQueue.Models.Queues;
 global using NetSocketGenerator.CacheQueue.Contracts.Constants;
 global using NetSocketGenerator.CacheQueue.Server;
+global using NetSocketGenerator.CacheQueue.Models.Common;

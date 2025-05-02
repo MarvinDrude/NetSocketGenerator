@@ -4,7 +4,7 @@ namespace NetSocketGenerator.CacheQueue.Server;
 public sealed class CacheQueueRegistry
 {
    private readonly ConcurrentDictionary<string, ServerQueueDefinition> _localQueues = [];
-
+   
    public ServerQueueDefinition CreateLocalQueue(
       QueueCreateMessage createParameters, CacheQueueServer server)
    {
@@ -17,8 +17,13 @@ public sealed class CacheQueueRegistry
 
    public ServerQueueDefinition? DeleteLocalQueue(string queueName)
    {
-      return _localQueues.TryRemove(queueName, out var queue) 
-         ? queue : null;
+      if (!_localQueues.TryRemove(queueName, out var queue))
+      {
+         return null;
+      }
+
+      queue.Dispose();
+      return queue;
    }
 
    public ServerQueueDefinition? GetLocalQueue(string queueName)

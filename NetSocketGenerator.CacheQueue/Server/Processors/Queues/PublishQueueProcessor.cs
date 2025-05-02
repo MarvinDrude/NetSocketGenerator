@@ -1,7 +1,9 @@
-﻿namespace NetSocketGenerator.CacheQueue.Server.Processors.Queues;
+﻿using System.Text.Json;
+
+namespace NetSocketGenerator.CacheQueue.Server.Processors.Queues;
 
 [SocketProcessor(
-   EventNamePattern = QueueEventNames.Delete,
+   EventNamePattern = QueueEventNames.Publish,
    RegistrationGroups = ["Queue"],
    IncludeClient = false
 )]
@@ -15,20 +17,31 @@ public sealed partial class PublishQueueProcessor
       _logger = logger;
    }
    
-   public Task Execute(
+   public async Task Execute(
       ITcpServerConnection connection,
-      [SocketPayload] QueuePublishMessage<> message)
+      [SocketPayload] QueuePublishMessage<JsonElement> message)
    {
       var queueServer = connection.CurrentServer.GetMetadata<CacheQueueServer>();
       using var scope = _logger.BeginScope(queueServer.NodeName);
       
       if (!queueServer.Options.IsClustered)
       {
-         var definition = queueServer.QueueRegistry.GetLocalQueue(message.QueueName);
+         var isPublished = false;
+         if (queueServer.QueueRegistry.GetLocalQueue(message.QueueName) is { } queue)
+         {
+            await queue.PublishMessage(connection, message);
+            isPublished = true;
+         }
          
-         
+         if (message is { ConsumerAck: false, AwaitsAck: true })
+         {
+            connection.Send(QueueEventNames.Publish, 
+               message.CreateAckMessage(new QueuePublishAckMessage()
+               {
+                  IsPublished = isPublished
+               }));
+         }
       }
-         
-      return Task.CompletedTask;
+      
    }
 }

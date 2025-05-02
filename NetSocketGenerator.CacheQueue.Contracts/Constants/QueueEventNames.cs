@@ -9,4 +9,5 @@ public static class QueueEventNames
    public const string Delete = "QUEUE_DELETE";
 
    public const string Publish = "QUEUE_PUBLISH";
+   public const string PublishAck = "QUEUE_PUBLISH_ACK";
 }

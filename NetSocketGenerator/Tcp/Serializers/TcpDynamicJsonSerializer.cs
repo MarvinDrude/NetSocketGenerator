@@ -7,7 +7,7 @@ public sealed class TcpDynamicJsonSerializer : ITcpSerializer
 {
    private const int InitialBufferSize = 1024 * 2;
    
-   private static readonly JsonSerializerOptions JsonOptions = new() {
+   public static readonly JsonSerializerOptions JsonOptions = new() {
       IncludeFields = true,
       PropertyNameCaseInsensitive = true,
       Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,

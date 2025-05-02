@@ -2,6 +2,77 @@
 
 public sealed class QueueModule(CacheQueueClient client)
 {
+   public Task<TOutput?> PublishAndReceive<TInput, TOutput>(string queueName, TInput contents)
+   {
+      var message = new QueuePublishMessage<TInput>()
+      {
+         ConsumerAck = true,
+         Contents = contents,
+         ConsumerAckTimeout = client.Options.QueueConsumerAckTimeout,
+         QueueName = queueName
+      };
+      return PublishAndReceive<TInput, TOutput>(message);
+   }
+
+   public async Task<TOutput?> PublishAndReceive<TInput, TOutput>(QueuePublishMessage<TInput> message)
+   {
+      message.AwaitsAck = false;
+      message.ConsumerAck = true;
+      
+      var task = client.AckContainer
+         .Enqueue<QueuePublishConsumerAckMessage<TOutput>>(message.RequestId, client.Options.ServerAckTimeout);
+      
+      client.Tcp.Send(QueueEventNames.Publish, message);
+      var result = await task;
+
+      return result is not null ? result.Contents : default;
+   }
+   
+   public Task<bool> Publish<T>(string queueName, T contents)
+   {
+      var message = new QueuePublishMessage<T>()
+      {
+         QueueName = queueName,
+         Contents = contents,
+         ConsumerAckTimeout = client.Options.QueueConsumerAckTimeout,
+         ConsumerAck = false,
+      };
+      return Publish(message);
+   }
+
+   public async Task<bool> Publish<T>(QueuePublishMessage<T> message)
+   {
+      message.AwaitsAck = true;
+      message.ConsumerAck = false;
+      
+      var task = client.AckContainer
+         .Enqueue<QueuePublishAckMessage>(message.RequestId, client.Options.ServerAckTimeout);
+      
+      client.Tcp.Send(QueueEventNames.Publish, message);
+      var result = await task;
+      
+      return result is { IsPublished: true };
+   }
+   
+   public void PublishNoAck<T>(string queueName, T contents)
+   {
+      var message = new QueuePublishMessage<T>()
+      {
+         QueueName = queueName,
+         ConsumerAckTimeout = client.Options.QueueConsumerAckTimeout,
+         ConsumerAck = false,
+         Contents = contents
+      };
+      PublishNoAck(message);
+   }
+
+   public void PublishNoAck<T>(QueuePublishMessage<T> message)
+   {
+      message.AwaitsAck = false;
+      message.ConsumerAck = false;
+      client.Tcp.Send(QueueEventNames.Publish, message);
+   }
+   
    public Task<bool> Unsubscribe(string queueName)
    {
       var message = new QueueUnsubscribeMessage()

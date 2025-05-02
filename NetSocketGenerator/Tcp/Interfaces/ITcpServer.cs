@@ -15,4 +15,6 @@ public interface ITcpServer
       where T : ITcpHandler;
 
    public T GetMetadata<T>();
+
+   public ITcpServerConnection? GetConnection(Guid id);
 }

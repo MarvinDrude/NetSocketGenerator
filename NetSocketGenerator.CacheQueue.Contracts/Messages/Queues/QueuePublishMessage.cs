@@ -6,5 +6,7 @@ public sealed class QueuePublishMessage<T> : MessageBase
    
    public required bool ConsumerAck { get; set; }
    
+   public required TimeSpan ConsumerAckTimeout { get; set; }
+   
    public required T Contents { get; set; }
 }

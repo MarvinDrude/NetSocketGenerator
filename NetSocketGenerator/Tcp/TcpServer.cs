@@ -91,6 +91,11 @@ public sealed class TcpServer : ITcpServer, ITcpServices
       FrameFactory = new TcpFrameFactory();
    }
 
+   public ITcpServerConnection? GetConnection(Guid id)
+   {
+      return _connections.GetValueOrDefault(id);
+   }
+
    public T GetMetadata<T>()
    {
       return (T)MetadataObjectReference!;
