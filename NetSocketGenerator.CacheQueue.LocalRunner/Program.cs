@@ -54,12 +54,47 @@ const string queueName = "Messages";
 
 await testClient.Queue.Create(queueName);
 await testClient.Queue.Subscribe(queueName);
-await testClient.Queue.Unsubscribe(queueName);
-await testClient.Queue.Delete(queueName);
+
+testClient.Queue.AddHandler<TestMessage>(queueName, async (context) =>
+{
+   Console.WriteLine(context.Message.Message);
+   await context.Respond(new TestMessageBad() { Message = "comeback" });
+});
+
+// await testClient.Queue.Publish(queueName, new TestMessage()
+// {
+//    Message = "null"
+// });
+// testClient.Queue.PublishNoAck(queueName, new TestMessage()
+// {
+//    Message = "null1"
+// });
+
+Task.Factory.StartNew(async () =>
+{
+   var a = await testClient.Queue.PublishAndReceive<TestMessage, TestMessageBad>(queueName, new TestMessage()
+   {
+      Message = "null"
+   });
+   Console.WriteLine(a?.Message);
+}, TaskCreationOptions.LongRunning);
+
+
+
 
 Console.WriteLine("Finished");
 
 while (true)
 {
    await Task.Delay(60_000);
+}
+
+public sealed class TestMessage
+{
+   public required string Message { get; set; } 
+}
+
+public sealed class TestMessageBad
+{
+   public string? Message { get; set; } 
 }

@@ -1,10 +1,24 @@
-﻿namespace NetSocketGenerator.CacheQueue.Client.Modules;
+﻿using System.Text.Json;
+
+namespace NetSocketGenerator.CacheQueue.Client.Modules;
 
 public sealed class QueueModule(CacheQueueClient client)
 {
+   internal ConcurrentDictionary<string, IDelegateContainer> Handlers { get; } = [];
+   
    public void AddHandler<T>(string queueName, QueuePublishDelegate<T> handler)
    {
-      
+      if (!Handlers.TryGetValue(queueName, out var container))
+      {
+         container = Handlers[queueName] = new DelegateContainer<T>();
+      }
+
+      if (container is not DelegateContainer<T> containerTyped)
+      {
+         return;
+      }
+
+      containerTyped.Add(handler);
    }
    
    public Task<TOutput?> PublishAndReceive<TInput, TOutput>(string queueName, TInput contents)
@@ -25,12 +39,14 @@ public sealed class QueueModule(CacheQueueClient client)
       message.ConsumerAck = true;
       
       var task = client.AckContainer
-         .Enqueue<QueuePublishConsumerAckMessage<TOutput>>(message.RequestId, client.Options.ServerAckTimeout);
+         .Enqueue<QueuePublishConsumerAckMessage<JsonElement>>(message.RequestId, client.Options.ServerAckTimeout);
       
       client.Tcp.Send(QueueEventNames.Publish, message);
       var result = await task;
 
-      return result is not null ? result.Contents : default;
+      return result is null 
+         ? default 
+         : result.Contents.Deserialize<TOutput>();
    }
    
    public Task<bool> Publish<T>(string queueName, T contents)

@@ -35,7 +35,7 @@ public sealed partial class PublishQueueProcessor
          
          if (message is { ConsumerAck: false, AwaitsAck: true })
          {
-            connection.Send(QueueEventNames.Publish, 
+            connection.Send(QueueEventNames.PublishAck, 
                message.CreateAckMessage(new QueuePublishAckMessage()
                {
                   IsPublished = isPublished

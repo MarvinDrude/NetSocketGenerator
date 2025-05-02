@@ -26,7 +26,15 @@ public sealed partial class PublishQueueAckProcessor
       
       if (!queueServer.Options.IsClustered)
       {
-         queueServer.AckContainer.TrySetResult(message.AckRequestId, message);
+         if (!queueServer.AckContainer.TrySetResult(message.AckRequestId, message))
+         {
+            QueuePublishAckMessage fallbackMessage = new()
+            {
+               AckRequestId = message.RequestId,
+               IsPublished = true,
+            };
+            connection.Send(QueueEventNames.PublishAck, fallbackMessage);
+         }
       }
    }
 }

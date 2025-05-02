@@ -60,7 +60,7 @@ public sealed class ServerQueueDefinition : IDisposable
       if (task is not null
           && await task is { } ackMessage)
       {
-         conn.Send(QueueEventNames.PublishAck, ackMessage);
+         conn.Send(QueueEventNames.PublishConsumerAck, ackMessage);
       }
    }
    

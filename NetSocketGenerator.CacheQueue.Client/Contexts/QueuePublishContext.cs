@@ -1,4 +1,6 @@
-﻿namespace NetSocketGenerator.CacheQueue.Client.Contexts;
+﻿using System.Text.Json;
+
+namespace NetSocketGenerator.CacheQueue.Client.Contexts;
 
 public sealed class QueuePublishContext<T>
 {
@@ -8,7 +10,7 @@ public sealed class QueuePublishContext<T>
    
    public required string QueueName { get; set; }
    
-   public required QueuePublishMessage<T> RawMessage { get; set; }
+   public required QueuePublishMessage<JsonElement> RawMessage { get; set; }
 
    public Task<bool> Respond<TResponse>(TResponse response)
    {

@@ -10,4 +10,5 @@ public static class QueueEventNames
 
    public const string Publish = "QUEUE_PUBLISH";
    public const string PublishAck = "QUEUE_PUBLISH_ACK";
+   public const string PublishConsumerAck = "QUEUE_PUBLISH_CONSUMER_ACK";
 }
