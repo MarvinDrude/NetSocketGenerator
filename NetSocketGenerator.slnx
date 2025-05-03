@@ -8,6 +8,7 @@
     <Project Path="NetSocketGenerator.Generator\NetSocketGenerator.Generator.csproj" Type="Classic C#" />
   </Folder>
   <Folder Name="/Tests/">
+    <Project Path="NetSocketGenerator.CacheQueue.Tests\NetSocketGenerator.CacheQueue.Tests.csproj" Type="Classic C#" />
     <Project Path="NetSocketGenerator.Tests\NetSocketGenerator.Tests.csproj" Type="Classic C#" />
   </Folder>
   <Project Path="NetSocketGenerator.CacheQueue.Client\NetSocketGenerator.CacheQueue.Client.csproj" Type="Classic C#" />
