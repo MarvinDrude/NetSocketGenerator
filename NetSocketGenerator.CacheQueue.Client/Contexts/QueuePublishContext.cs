@@ -19,18 +19,19 @@ public sealed class QueuePublishContext<T>
          AwaitsAck = true,
          Contents = response,
          AckRequestId = RawMessage.RequestId,
+         QueueName = QueueName
       };
       
       return Respond(message);
    }
-
+   
    internal async Task<bool> Respond<TResponse>(QueuePublishConsumerAckMessage<TResponse> message)
    {
       var task = Client.AckContainer.Enqueue<QueuePublishAckMessage>(message.RequestId, Client.Options.ServerAckTimeout);
       
       message.AwaitsAck = true;
       Client.Tcp.Send(QueueEventNames.PublishAck, message);
-
+   
       var result = await task;
       
       return result is { IsPublished: true };
@@ -43,6 +44,7 @@ public sealed class QueuePublishContext<T>
          AwaitsAck = false,
          Contents = response,
          AckRequestId = RawMessage.RequestId,
+         QueueName = QueueName
       };
       RespondNoAck(message);
    }

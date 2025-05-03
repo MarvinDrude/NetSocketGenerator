@@ -330,8 +330,8 @@ public sealed class TcpServer : ITcpServer, ITcpServices
                continue;
             }
 
-            await OnFrameReceived(connection, frame);
-            await _frameDispatcher.Dispatch(frame, connection);
+            _ = OnFrameReceived(connection, frame);
+            _ = _frameDispatcher.Dispatch(frame, connection);
             
             connection.Pipe.Input.AdvanceTo(position);
             

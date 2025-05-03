@@ -103,6 +103,7 @@ public sealed class TcpServerConnection
       
    public bool Send(ITcpFrame frame)
    {
+      //Console.WriteLine("ServerConnection.Send: " + frame.Identifier);
       frame.IsForSending = true;
       return SendChannel.Writer.TryWrite(frame);
    }

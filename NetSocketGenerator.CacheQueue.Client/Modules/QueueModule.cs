@@ -46,7 +46,7 @@ public sealed class QueueModule(CacheQueueClient client)
 
       return result is null 
          ? default 
-         : result.Contents.Deserialize<TOutput>();
+         : result.Contents.Deserialize<TOutput>(TcpDynamicJsonSerializer.JsonOptions);
    }
    
    public Task<bool> Publish<T>(string queueName, T contents)

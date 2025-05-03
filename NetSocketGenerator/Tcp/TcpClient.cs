@@ -134,6 +134,7 @@ public sealed class TcpClient : ITcpClient, ITcpServices
       
    public bool Send(ITcpFrame frame)
    {
+      //Console.WriteLine("Client.Send: " + frame.Identifier);
       frame.IsForSending = true;
       return _sendChannel.Writer.TryWrite(frame);
    }
@@ -385,9 +386,9 @@ public sealed class TcpClient : ITcpClient, ITcpServices
 
             if (_options.Events.OnFrameReceived is not null)
             {
-               await _options.Events.OnFrameReceived(this, frame);
+               _ = _options.Events.OnFrameReceived(this, frame);
             }
-            await _frameDispatcher.Dispatch(frame, this);
+            _ = _frameDispatcher.Dispatch(frame, this);
             
             _pipe.Input.AdvanceTo(position);
 
