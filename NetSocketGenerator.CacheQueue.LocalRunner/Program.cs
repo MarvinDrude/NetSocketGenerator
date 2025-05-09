@@ -56,22 +56,24 @@ const string queueName = "Messages";
 await testClient.Queue.Create(queueName);
 await testClient.Queue.Subscribe(queueName);
 
+await testClient.Disconnect();
+
 //await testClient.Queue.Unsubscribe(queueName);
 //await testClient.Queue.Delete(queueName);
 
-testClient.Queue.AddHandler<TestMessage>(queueName, async (context) =>
-{
-   Console.WriteLine(context.Message.Message);
-   await context.Respond(new TestMessageBad() { Message = "comeback" });
-   _ = "";
-});
-
-testClient.Queue.PublishNoAck(queueName, new TestMessage() { Message = "test1" });
-await testClient.Queue.Publish(queueName, new TestMessage() { Message = "test5" });
-testClient.Queue.PublishNoAck(queueName, new TestMessage() { Message = "test2" });
-var tt = await testClient.Queue.PublishAndReceive<TestMessage, TestMessageBad>(queueName, new TestMessage() { Message = "test4" });
-Console.WriteLine(tt?.Message);
-testClient.Queue.PublishNoAck(queueName, new TestMessage() { Message = "test3" });
+// testClient.Queue.AddHandler<TestMessage>(queueName, async (context) =>
+// {
+//    Console.WriteLine(context.Message.Message);
+//    await context.Respond(new TestMessageBad() { Message = "comeback" });
+//    _ = "";
+// });
+//
+// testClient.Queue.PublishNoAck(queueName, new TestMessage() { Message = "test1" });
+// await testClient.Queue.Publish(queueName, new TestMessage() { Message = "test5" });
+// testClient.Queue.PublishNoAck(queueName, new TestMessage() { Message = "test2" });
+// var tt = await testClient.Queue.PublishAndReceive<TestMessage, TestMessageBad>(queueName, new TestMessage() { Message = "test4" });
+// Console.WriteLine(tt?.Message);
+// testClient.Queue.PublishNoAck(queueName, new TestMessage() { Message = "test3" });
 
 
 Console.WriteLine("Finished");

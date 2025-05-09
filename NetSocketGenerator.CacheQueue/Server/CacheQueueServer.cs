@@ -61,13 +61,14 @@ public sealed partial class CacheQueueServer : IAsyncDisposable
 
    private Task OnClientDisconnected(ITcpConnection connection)
    {
-      if (Clients.TryRemove(connection.Id, out var properties))
+      if (!Clients.TryRemove(connection.Id, out var properties)) 
+         return Task.CompletedTask;
+      
+      foreach (var subscription in properties.QueueSubscriptions.Values)
       {
-         foreach (var subscription in properties.QueueSubscriptions.Values)
-         {
-            subscription.Definition.RemoveLocalSubscription(connection.Id);
-         }
+         subscription.Definition.RemoveLocalSubscription(connection.Id);
       }
+      
       return Task.CompletedTask;
    }
 

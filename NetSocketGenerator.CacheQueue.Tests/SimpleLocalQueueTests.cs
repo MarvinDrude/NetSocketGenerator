@@ -1,10 +1,8 @@
-﻿using System.Security.Authentication.ExtendedProtection;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetSocketGenerator.CacheQueue.Client;
 using NetSocketGenerator.CacheQueue.Client.Extensions;
 using NetSocketGenerator.CacheQueue.Configuration.Server;
-using NetSocketGenerator.CacheQueue.Contracts.Messages.Queues;
 using NetSocketGenerator.CacheQueue.Extensions;
 using NetSocketGenerator.CacheQueue.Server;
 using Serilog;
