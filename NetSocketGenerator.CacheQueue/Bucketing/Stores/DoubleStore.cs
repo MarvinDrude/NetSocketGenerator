@@ -1,0 +1,46 @@
+﻿namespace NetSocketGenerator.CacheQueue.Bucketing.Stores;
+
+public sealed class DoubleStore : IStore
+{
+   private readonly Dictionary<string, double> _store = [];
+   private readonly BucketExecutor _bucketExecutor;
+   
+   public DoubleStore(BucketExecutor bucketExecutor)
+   {
+      _bucketExecutor = bucketExecutor;
+   }
+   
+   public bool Handle(BucketCommand command)
+   {
+      return command.SourceCommand switch
+      {
+         GetDoubleCommand getCommand => HandleGet(getCommand, command),
+         SetDoubleCommand setCommand => HandleSet(setCommand, command),
+         _ => false
+      };
+   }
+
+   private bool HandleGet(GetDoubleCommand source, BucketCommand bucketCommand)
+   {
+      var value = _store.GetValueOrDefault(source.KeyName);
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new GetDoubleCommandAck()
+      {
+         AckRequestId = source.RequestId,
+         Value = value
+      });
+      
+      return true;
+   }
+   
+   private bool HandleSet(SetDoubleCommand source, BucketCommand bucketCommand)
+   {
+      _store[source.KeyName] = source.Value;
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new SetDoubleCommandAck()
+      {
+         AckRequestId = source.RequestId,
+         Value = source.Value
+      });
+      
+      return true;
+   }
+}

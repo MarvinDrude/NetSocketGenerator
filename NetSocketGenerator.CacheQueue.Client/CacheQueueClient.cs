@@ -7,6 +7,10 @@ public sealed class CacheQueueClient : IAsyncDisposable
 {
    public QueueModule Queue { get; }
    public StringModule Strings { get; }
+   public ULongModule ULongs { get; }
+   public LongModule Longs { get; }
+   public DoubleModule Doubles { get; }
+   public IntegerModule Integers { get; }
    
    internal CacheQueueClientOptions Options { get; }
    
@@ -39,6 +43,10 @@ public sealed class CacheQueueClient : IAsyncDisposable
 
       Queue = new QueueModule(this);
       Strings = new StringModule(this);
+      ULongs = new ULongModule(this);
+      Longs = new LongModule(this);
+      Doubles = new DoubleModule(this);
+      Integers = new IntegerModule(this);
    }
    
    public void Connect()
@@ -61,7 +69,6 @@ public sealed class CacheQueueClient : IAsyncDisposable
       
    }
 
-   
    public async ValueTask DisposeAsync()
    {
       await Tcp.Disconnect();

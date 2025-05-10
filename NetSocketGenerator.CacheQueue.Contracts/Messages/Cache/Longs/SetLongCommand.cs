@@ -4,7 +4,7 @@ public class SetLongCommand : BaseCommand
 {
    public override string StoreType => StoreTypes.Long;
 
-   public required string Value { get; set; }
+   public required long Value { get; set; }
    
    public override string ToString()
    {

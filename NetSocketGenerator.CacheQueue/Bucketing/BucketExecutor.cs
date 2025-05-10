@@ -10,7 +10,12 @@ public sealed partial class BucketExecutor : IDisposable
    private readonly CancellationTokenSource _cts = new();
    
    private readonly Channel<BucketCommand> _commandChannel = Channel.CreateUnbounded<BucketCommand>();
+   
    private readonly StringStore _stringStore;
+   private readonly ULongStore _uLongStore;
+   private readonly LongStore _longStore;
+   private readonly IntegerStore _integerStore;
+   private readonly DoubleStore _doubleStore;
 
    public BucketExecutor(
       ILogger<BucketExecutor> logger,
@@ -22,6 +27,10 @@ public sealed partial class BucketExecutor : IDisposable
       Index = index;
 
       _stringStore = new StringStore(this);
+      _longStore = new LongStore(this);
+      _uLongStore = new ULongStore(this);
+      _doubleStore = new DoubleStore(this);
+      _integerStore = new IntegerStore(this);
       
       _ = Task.Factory.StartNew(
          RunCommands, 
@@ -64,6 +73,10 @@ public sealed partial class BucketExecutor : IDisposable
       _ = command.SourceCommand.StoreType switch
       {
          StoreTypes.String => _stringStore.Handle(command),
+         StoreTypes.Double => _doubleStore.Handle(command),
+         StoreTypes.Integer => _integerStore.Handle(command),
+         StoreTypes.Long => _longStore.Handle(command),
+         StoreTypes.ULong => _uLongStore.Handle(command),
          _ => false
       };
    }
