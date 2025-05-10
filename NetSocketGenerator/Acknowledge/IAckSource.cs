@@ -2,4 +2,5 @@
 
 public interface IAckSource
 {
+   public bool SetResult(object boxed);
 }

@@ -10,6 +10,7 @@ public sealed class RobinBucketSelector : IBucketSelector
    private readonly BucketExecutor[] _bucketExecutors;
    
    public RobinBucketSelector(
+      CacheQueueServer server,
       CacheQueueServerOptions options)
    {
       _options = options;
@@ -20,7 +21,8 @@ public sealed class RobinBucketSelector : IBucketSelector
       for (var i = 0; i < options.BucketCount; i++)
       {
          _bucketExecutors[i] = new BucketExecutor(
-            options.ServiceProvider.GetRequiredService<ILogger<BucketExecutor>>());
+            options.ServiceProvider.GetRequiredService<ILogger<BucketExecutor>>(),
+            server, i);
       }
    }
    

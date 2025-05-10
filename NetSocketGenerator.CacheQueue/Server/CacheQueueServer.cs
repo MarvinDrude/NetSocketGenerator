@@ -43,6 +43,7 @@ public sealed partial class CacheQueueServer : IAsyncDisposable
       };
 
       Tcp.UseSocketServerQueueProcessors();
+      Tcp.UseSocketServerCommandsProcessors();
    }
 
    public void Start()
@@ -53,7 +54,7 @@ public sealed partial class CacheQueueServer : IAsyncDisposable
       }
       
       _isRunning = true;
-      BucketSelector = new RobinBucketSelector(Options);
+      BucketSelector = new RobinBucketSelector(this, Options);
       
       Tcp.Start();
       LogStart(Options.ClusterOptions.CurrentNodeName, Options.Address, Options.Port, Options.IsClustered);

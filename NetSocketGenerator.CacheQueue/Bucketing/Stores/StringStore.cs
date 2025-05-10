@@ -4,6 +4,12 @@ namespace NetSocketGenerator.CacheQueue.Bucketing.Stores;
 public sealed class StringStore : IStore
 {
    private readonly Dictionary<string, string> _store = [];
+   private readonly BucketExecutor _bucketExecutor;
+   
+   public StringStore(BucketExecutor bucketExecutor)
+   {
+      _bucketExecutor = bucketExecutor;
+   }
    
    public bool Handle(BucketCommand command)
    {
@@ -17,13 +23,8 @@ public sealed class StringStore : IStore
 
    private bool HandleGet(GetStringCommand source, BucketCommand bucketCommand)
    {
-      if (bucketCommand.AckSource is not AckSource<GetStringCommandAck> ackSource)
-      {
-         return false;
-      }
-
       var value = _store.GetValueOrDefault(source.KeyName);
-      ackSource.SetResult(new GetStringCommandAck()
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new GetStringCommandAck()
       {
          AckRequestId = source.RequestId,
          Value = value
@@ -34,13 +35,8 @@ public sealed class StringStore : IStore
    
    private bool HandleSet(SetStringCommand source, BucketCommand bucketCommand)
    {
-      if (bucketCommand.AckSource is not AckSource<SetStringCommandAck> ackSource)
-      {
-         return false;
-      }
-
       _store[source.KeyName] = source.Value;
-      ackSource.SetResult(new SetStringCommandAck()
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new SetStringCommandAck()
       {
          AckRequestId = source.RequestId,
          Value = source.Value

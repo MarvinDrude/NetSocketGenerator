@@ -35,6 +35,7 @@ public sealed class CacheQueueClient : IAsyncDisposable
       };
       
       Tcp.UseSocketClientQueueProcessors();
+      Tcp.UseSocketClientCommandsProcessors();
 
       Queue = new QueueModule(this);
       Strings = new StringModule(this);

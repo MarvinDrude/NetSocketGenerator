@@ -2,12 +2,13 @@
 
 namespace NetSocketGenerator.CacheQueue.Contracts.Messages.Cache;
 
-[JsonPolymorphic(TypeDiscriminatorPropertyName = "commandType")]
+[JsonPolymorphic]
+[JsonDerivedType(typeof(BaseCommand), "base")]
 [JsonDerivedType(typeof(GetStringCommand), CommandNames.StringGet)]
 [JsonDerivedType(typeof(SetStringCommand), CommandNames.StringSet)]
-public abstract class BaseCommand : MessageBase
+public class BaseCommand : MessageBase
 {
    public required string KeyName { get; set; }
-   
-   public abstract string StoreType { get; }
+
+   public virtual string StoreType => "none";
 }

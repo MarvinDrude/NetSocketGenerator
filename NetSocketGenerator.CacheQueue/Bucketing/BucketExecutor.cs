@@ -3,16 +3,25 @@ namespace NetSocketGenerator.CacheQueue.Bucketing;
 
 public sealed partial class BucketExecutor : IDisposable
 {
+   internal CacheQueueServer Server { get; }
+   internal int Index { get; }
+   
    private readonly ILogger<BucketExecutor> _logger;
    private readonly CancellationTokenSource _cts = new();
    
    private readonly Channel<BucketCommand> _commandChannel = Channel.CreateUnbounded<BucketCommand>();
-   private readonly StringStore _stringStore = new();
+   private readonly StringStore _stringStore;
 
    public BucketExecutor(
-      ILogger<BucketExecutor> logger)
+      ILogger<BucketExecutor> logger,
+      CacheQueueServer server,
+      int index)
    {
       _logger = logger;
+      Server = server;
+      Index = index;
+
+      _stringStore = new StringStore(this);
       
       _ = Task.Factory.StartNew(
          RunCommands, 

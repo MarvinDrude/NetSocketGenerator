@@ -44,5 +44,8 @@ global using NetSocketGenerator.CacheQueue.Models.Common;
 global using NetSocketGenerator.CacheQueue.Contracts.Messages.Cache;
 global using NetSocketGenerator.CacheQueue.Bucketing.Stores;
 global using NetSocketGenerator.CacheQueue.Contracts.Messages.Cache.Strings;
+global using NetSocketGenerator.CacheQueue.Bucketing;
+global using NetSocketGenerator.CacheQueue.Contracts.Messages;
+
 
 

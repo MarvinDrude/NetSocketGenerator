@@ -10,4 +10,10 @@ public sealed class AckSource<T> : IAckSource
    {
       return _tcs.TrySetResult(result);
    }
+
+   public bool SetResult(object boxed)
+   {
+      return boxed is T result 
+         && _tcs.TrySetResult(result);
+   }
 }

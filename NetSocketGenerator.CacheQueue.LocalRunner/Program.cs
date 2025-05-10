@@ -59,6 +59,10 @@ await testClient.Queue.Subscribe(queueName);
 await testClient.Queue.Unsubscribe("a");
 await testClient.Queue.Unsubscribe(queueName);
 
+var tt = await testClient.Strings.Set("test", "aaa");
+
+Console.WriteLine(await testClient.Strings.Get("test"));
+
 //await testClient.Queue.Unsubscribe(queueName);
 //await testClient.Queue.Delete(queueName);
 

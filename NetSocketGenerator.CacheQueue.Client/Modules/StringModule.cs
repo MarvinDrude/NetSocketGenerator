@@ -21,7 +21,7 @@ public sealed class StringModule(CacheQueueClient client)
       var task = client.AckContainer
          .Enqueue<GetStringCommandAck>(command.RequestId, client.Options.ServerAckTimeout);
 
-      client.Tcp.Send(EventNames.Command, command);
+      client.Tcp.Send<BaseCommand>(EventNames.Command, command);
       var result = await task;
 
       return result?.Value;
@@ -46,7 +46,7 @@ public sealed class StringModule(CacheQueueClient client)
       var task = client.AckContainer
          .Enqueue<SetStringCommandAck>(command.RequestId, client.Options.ServerAckTimeout);
 
-      client.Tcp.Send(EventNames.Command, command);
+      client.Tcp.Send<BaseCommand>(EventNames.Command, command);
       var result = await task;
 
       return result?.Value is not null;
@@ -66,6 +66,6 @@ public sealed class StringModule(CacheQueueClient client)
    public void SetNoAck(SetStringCommand command)
    {
       command.AwaitsAck = false;
-      client.Tcp.Send(EventNames.Command, command);
+      client.Tcp.Send<BaseCommand>(EventNames.Command, command);
    }
 }

@@ -40,6 +40,12 @@ public sealed class AckContainer : IDisposable
 
       return false;
    }
+
+   public bool TrySetResult(Guid id, object boxed)
+   {
+      return _pendingAcks.TryRemove(id, out var ackSource) 
+         && ackSource.SetResult(boxed);
+   }
    
    public void Dispose()
    {
