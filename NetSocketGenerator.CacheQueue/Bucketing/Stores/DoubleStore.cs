@@ -2,7 +2,7 @@
 
 public sealed class DoubleStore : IStore
 {
-   private readonly Dictionary<string, double> _store = [];
+   private readonly Dictionary<string, double?> _store = [];
    private readonly BucketExecutor _bucketExecutor;
    
    public DoubleStore(BucketExecutor bucketExecutor)
@@ -16,6 +16,7 @@ public sealed class DoubleStore : IStore
       {
          GetDoubleCommand getCommand => HandleGet(getCommand, command),
          SetDoubleCommand setCommand => HandleSet(setCommand, command),
+         DeleteCommand deleteCommand => HandleDelete(deleteCommand, command),
          _ => false
       };
    }
@@ -39,6 +40,17 @@ public sealed class DoubleStore : IStore
       {
          AckRequestId = source.RequestId,
          Value = source.Value
+      });
+      
+      return true;
+   }
+   
+   private bool HandleDelete(DeleteCommand source, BucketCommand bucketCommand)
+   {
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new DeleteCommandAck()
+      {
+         AckRequestId = source.RequestId,
+         WasFound = _store.Remove(source.KeyName),
       });
       
       return true;

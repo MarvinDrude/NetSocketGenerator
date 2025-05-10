@@ -4,6 +4,7 @@ namespace NetSocketGenerator.CacheQueue.Contracts.Messages.Cache;
 
 [JsonPolymorphic]
 [JsonDerivedType(typeof(BaseCommand), "base")]
+[JsonDerivedType(typeof(DeleteCommand), CommandNames.Delete)]
 [JsonDerivedType(typeof(GetStringCommand), CommandNames.StringGet)]
 [JsonDerivedType(typeof(SetStringCommand), CommandNames.StringSet)]
 [JsonDerivedType(typeof(GetDoubleCommand), CommandNames.DoubleGet)]

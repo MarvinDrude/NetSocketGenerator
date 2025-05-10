@@ -26,4 +26,26 @@ public sealed class SimpleLocalStringTests
       await Assert.That(valueOne).IsEqualTo("key1value");
       await Assert.That(valueTwo).IsEqualTo("key2value");
    }
+   
+   [Test, NotInParallel]
+   [ClassDataSource<CacheQueueLocalServerFactory, CacheQueueLocalClientFactory>(Shared = [SharedType.None])]
+   public async Task TestSimpleDelete(
+      CacheQueueLocalServerFactory serverFactory,
+      CacheQueueLocalClientFactory clientFactory)
+   {
+      const string keyOne = "test1";
+      
+      var server = serverFactory.Server;
+      var client = clientFactory.Client;
+
+      server.Start();
+      client.Connect();
+
+      await client.Strings.Set(keyOne, "adsadsa");
+      await client.Strings.Delete(keyOne);
+      
+      var valueOne = await client.Strings.Get(keyOne);
+      
+      await Assert.That(valueOne).IsEqualTo(null);
+   }
 }

@@ -26,4 +26,26 @@ public sealed class SimpleLocalULongTests
       await Assert.That(valueOne).IsEqualTo((ulong)2000);
       await Assert.That(valueTwo).IsEqualTo((ulong)1023143243);
    }
+   
+   [Test, NotInParallel]
+   [ClassDataSource<CacheQueueLocalServerFactory, CacheQueueLocalClientFactory>(Shared = [SharedType.None])]
+   public async Task TestSimpleDelete(
+      CacheQueueLocalServerFactory serverFactory,
+      CacheQueueLocalClientFactory clientFactory)
+   {
+      const string keyOne = "test1";
+      
+      var server = serverFactory.Server;
+      var client = clientFactory.Client;
+
+      server.Start();
+      client.Connect();
+
+      await client.ULongs.Set(keyOne, 2000);
+      await client.ULongs.Delete(keyOne);
+      
+      var valueOne = await client.ULongs.Get(keyOne);
+      
+      await Assert.That(valueOne).IsEqualTo(null);
+   }
 }

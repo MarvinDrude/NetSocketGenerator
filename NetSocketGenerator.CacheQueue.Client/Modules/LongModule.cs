@@ -2,6 +2,31 @@
 
 public sealed class LongModule(CacheQueueClient client)
 {
+   public Task<bool> Delete(string keyName)
+   {
+      var command = new DeleteCommand()
+      {
+         KeyName = keyName,
+         AwaitsAck = true,
+         StoreTypeSet = StoreTypes.Long
+      };
+      
+      return Delete(command);
+   }
+
+   public async Task<bool> Delete(DeleteCommand command)
+   {
+      command.AwaitsAck = true;
+      
+      var task = client.AckContainer
+         .Enqueue<DeleteCommandAck>(command.RequestId, client.Options.ServerAckTimeout);
+      
+      client.Tcp.Send<BaseCommand>(EventNames.Command, command);
+      var result = await task;
+
+      return result?.WasFound ?? false;
+   }
+   
    public Task<long?> Get(string keyName)
    {
       var command = new GetLongCommand()

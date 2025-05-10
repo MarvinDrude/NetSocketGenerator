@@ -26,4 +26,26 @@ public class SimpleLocalDoubleTests
       await Assert.That(valueOne).IsEqualTo(2000d);
       await Assert.That(valueTwo).IsEqualTo(1023143243d);
    }
+
+   [Test, NotInParallel]
+   [ClassDataSource<CacheQueueLocalServerFactory, CacheQueueLocalClientFactory>(Shared = [SharedType.None])]
+   public async Task TestSimpleDelete(
+      CacheQueueLocalServerFactory serverFactory,
+      CacheQueueLocalClientFactory clientFactory)
+   {
+      const string keyOne = "test1";
+      
+      var server = serverFactory.Server;
+      var client = clientFactory.Client;
+
+      server.Start();
+      client.Connect();
+
+      await client.Doubles.Set(keyOne, 2000d);
+      await client.Doubles.Delete(keyOne);
+      
+      var valueOne = await client.Doubles.Get(keyOne);
+      
+      await Assert.That(valueOne).IsEqualTo(null);
+   }
 }

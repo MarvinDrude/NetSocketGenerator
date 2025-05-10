@@ -17,6 +17,7 @@ public sealed class StringStore : IStore
       {
          GetStringCommand getCommand => HandleGet(getCommand, command),
          SetStringCommand setCommand => HandleSet(setCommand, command),
+         DeleteCommand deleteCommand => HandleDelete(deleteCommand, command),
          _ => false
       };
    }
@@ -40,6 +41,17 @@ public sealed class StringStore : IStore
       {
          AckRequestId = source.RequestId,
          Value = source.Value
+      });
+      
+      return true;
+   }
+   
+   private bool HandleDelete(DeleteCommand source, BucketCommand bucketCommand)
+   {
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new DeleteCommandAck()
+      {
+         AckRequestId = source.RequestId,
+         WasFound = _store.Remove(source.KeyName),
       });
       
       return true;

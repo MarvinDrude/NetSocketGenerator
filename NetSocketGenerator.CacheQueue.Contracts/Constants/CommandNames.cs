@@ -2,6 +2,8 @@
 
 public static class CommandNames
 {
+   public const string Delete = "DELETE";
+   
    public const string StringGet = "STRING_GET";
    public const string StringSet = "STRING_SET";
 
