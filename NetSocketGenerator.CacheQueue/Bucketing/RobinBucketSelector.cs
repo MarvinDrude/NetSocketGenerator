@@ -19,7 +19,8 @@ public sealed class RobinBucketSelector : IBucketSelector
       
       for (var i = 0; i < options.BucketCount; i++)
       {
-         _bucketExecutors[i] = new BucketExecutor();
+         _bucketExecutors[i] = new BucketExecutor(
+            options.ServiceProvider.GetRequiredService<ILogger<BucketExecutor>>());
       }
    }
    
@@ -37,5 +38,14 @@ public sealed class RobinBucketSelector : IBucketSelector
    public void RemoveKeyExecutor(string keyName)
    {
       _keyToBucketExecutor.TryRemove(keyName, out _);
+   }
+
+   public void Dispose()
+   {
+      foreach (var bucketExecutor in _bucketExecutors)
+      {
+         bucketExecutor.Dispose();
+      }
+      _keyToBucketExecutor.Clear();
    }
 }

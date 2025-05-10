@@ -10,7 +10,7 @@ public sealed class CacheQueueServerOptions
    
    public required IServiceProvider ServiceProvider { get; init; }
    
-   public required int BucketCount { get; init; } = Math.Min(24, Environment.ProcessorCount);
+   public int BucketCount { get; init; } = Math.Min(24, Environment.ProcessorCount);
    
    public bool IsClustered => ClusterOptions.Nodes.Count > 1;
    

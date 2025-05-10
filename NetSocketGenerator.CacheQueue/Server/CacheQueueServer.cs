@@ -1,4 +1,6 @@
 ﻿
+using NetSocketGenerator.CacheQueue.Bucketing;
+
 namespace NetSocketGenerator.CacheQueue.Server;
 
 public sealed partial class CacheQueueServer : IAsyncDisposable
@@ -7,6 +9,7 @@ public sealed partial class CacheQueueServer : IAsyncDisposable
    
    internal CacheQueueServerOptions Options { get; }
    internal CacheQueueRegistry QueueRegistry { get; } = new();
+   internal IBucketSelector? BucketSelector { get; private set; }
    
    internal ConcurrentDictionary<Guid, ServerClientProperties> Clients { get; } = [];
    
@@ -14,6 +17,7 @@ public sealed partial class CacheQueueServer : IAsyncDisposable
    internal readonly AckContainer AckContainer = new();
 
    private readonly ILogger<CacheQueueServer> _logger;
+   private bool _isRunning = false;
    
    public CacheQueueServer(
       ILogger<CacheQueueServer> logger,
@@ -43,14 +47,31 @@ public sealed partial class CacheQueueServer : IAsyncDisposable
 
    public void Start()
    {
+      if (_isRunning)
+      {
+         return;
+      }
+      
+      _isRunning = true;
+      BucketSelector = new RobinBucketSelector(Options);
+      
       Tcp.Start();
       LogStart(Options.ClusterOptions.CurrentNodeName, Options.Address, Options.Port, Options.IsClustered);
    }
 
    public async Task Stop()
    {
+      if (!_isRunning)
+      {
+         return;
+      }
+      
       await Tcp.Stop();
       Clients.Clear();
+      
+      BucketSelector?.Dispose();
+
+      _isRunning = false;
    }
    
    private Task OnClientConnected(ITcpConnection connection)

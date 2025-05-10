@@ -24,4 +24,8 @@
          PackagePath="analyzers/dotnet/cs" />
    </ItemGroup>
 
+   <ItemGroup>
+     <Folder Include="Processors\Commands\" />
+   </ItemGroup>
+
 </Project>

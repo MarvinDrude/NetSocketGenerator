@@ -6,6 +6,7 @@ namespace NetSocketGenerator.CacheQueue.Client;
 public sealed class CacheQueueClient : IAsyncDisposable
 {
    public QueueModule Queue { get; }
+   public StringModule Strings { get; }
    
    internal CacheQueueClientOptions Options { get; }
    
@@ -36,6 +37,7 @@ public sealed class CacheQueueClient : IAsyncDisposable
       Tcp.UseSocketClientQueueProcessors();
 
       Queue = new QueueModule(this);
+      Strings = new StringModule(this);
    }
    
    public void Connect()

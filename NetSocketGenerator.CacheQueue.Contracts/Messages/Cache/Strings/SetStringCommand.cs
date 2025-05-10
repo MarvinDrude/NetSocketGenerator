@@ -6,3 +6,8 @@ public sealed class SetStringCommand : BaseCommand
 
    public required string Value { get; set; }
 }
+
+public sealed class SetStringCommandAck : AckMessageBase
+{
+   public string? Value { get; set; }
+}

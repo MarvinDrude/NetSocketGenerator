@@ -1,6 +1,6 @@
 ﻿namespace NetSocketGenerator.CacheQueue.Bucketing;
 
-public interface IBucketSelector
+public interface IBucketSelector : IDisposable
 {
    public BucketExecutor ChooseBucketExecutor(string keyName);
    
