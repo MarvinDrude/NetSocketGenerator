@@ -56,7 +56,8 @@ const string queueName = "Messages";
 await testClient.Queue.Create(queueName);
 await testClient.Queue.Subscribe(queueName);
 
-await testClient.Disconnect();
+await testClient.Queue.Unsubscribe("a");
+await testClient.Queue.Unsubscribe(queueName);
 
 //await testClient.Queue.Unsubscribe(queueName);
 //await testClient.Queue.Delete(queueName);

@@ -38,6 +38,8 @@ internal abstract class ConnectionFactory<TOptions, TSettings, TConnection>
    /// </remarks>
    protected readonly int _settingsCount;
 
+   protected readonly ulong _settingsCountAsLong;
+
    /// <summary>
    /// Holds an array of settings that define the configuration for individual connection queues.
    /// Each element in this array represents queue-specific settings as determined
@@ -65,7 +67,7 @@ internal abstract class ConnectionFactory<TOptions, TSettings, TConnection>
    /// This mechanism supports scenarios with concurrent connection initialization
    /// by ensuring consistent and safe index updates.
    /// </remarks>
-   protected long _settingsIndex;
+   protected ulong _settingsIndex;
 
    /// <summary>
    /// Indicates whether the resources used by the <see cref="ConnectionFactory{TOptions, TSettings, TConnection}"/>
@@ -90,6 +92,7 @@ internal abstract class ConnectionFactory<TOptions, TSettings, TConnection>
       _options = options;
 
       _settingsCount = options.IoQueueCount;
+      _settingsCountAsLong = (ulong)_settingsCount;
       _settingsIndex = 0;
 
       _settings = new TSettings[_settingsCount];
@@ -102,7 +105,7 @@ internal abstract class ConnectionFactory<TOptions, TSettings, TConnection>
 
    public IDuplexPipe Create(Socket socket, Stream? optionalStream)
    {
-      var setting = _settings[Interlocked.Increment(ref _settingsIndex) % _settingsCount];
+      var setting = _settings[Interlocked.Increment(ref _settingsIndex) % _settingsCountAsLong];
       return CreateConnection(socket, optionalStream, setting);
    }
 
