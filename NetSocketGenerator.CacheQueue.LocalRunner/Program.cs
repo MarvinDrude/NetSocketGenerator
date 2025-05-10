@@ -60,8 +60,10 @@ await testClient.Queue.Unsubscribe("a");
 await testClient.Queue.Unsubscribe(queueName);
 
 var tt = await testClient.Strings.Set("test", "aaa");
+await testClient.Strings.Set("test1", "aaa1");
 
 Console.WriteLine(await testClient.Strings.Get("test"));
+Console.WriteLine(await testClient.Strings.Get("test1"));
 
 //await testClient.Queue.Unsubscribe(queueName);
 //await testClient.Queue.Delete(queueName);

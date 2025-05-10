@@ -37,7 +37,7 @@ public sealed partial class CommandProcessor
          bucket.Enqueue(bucketCommand);
          var result = await task;
 
-         if (result is not null)
+         if (result is not null && command.AwaitsAck)
          {
             connection.Send(EventNames.CommandAck, result);
          }

@@ -3,6 +3,11 @@
 public sealed class GetStringCommand : BaseCommand
 {
    public override string StoreType => StoreTypes.String;
+   
+   public override string ToString()
+   {
+      return $"{base.ToString()}[GET]";
+   }
 }
 
 public sealed class GetStringCommandAck : AckMessageBase

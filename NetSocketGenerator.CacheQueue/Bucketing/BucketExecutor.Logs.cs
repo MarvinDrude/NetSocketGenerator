@@ -8,4 +8,11 @@ public sealed partial class BucketExecutor
       message: "Error handling command."
    )]
    private partial void LogFatalCommandError(Exception error);
+   
+   [LoggerMessage(
+      eventId: 2,
+      level: LogLevel.Debug,
+      message: "Running command {Command}."
+   )]
+   private partial void LogRunningCommand(BaseCommand command);
 }

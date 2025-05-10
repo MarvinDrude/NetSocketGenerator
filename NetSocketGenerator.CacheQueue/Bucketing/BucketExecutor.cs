@@ -37,6 +37,9 @@ public sealed partial class BucketExecutor : IDisposable
 
    private async Task RunCommands()
    {
+      using var scopeServer = _logger.BeginScope($"{Server.NodeName}");
+      using var scope = _logger.BeginScope($"BucketExecutor_{Index}");
+      
       while (!_cts.IsCancellationRequested
          && await _commandChannel.Reader.WaitToReadAsync(_cts.Token))
       {
@@ -56,6 +59,8 @@ public sealed partial class BucketExecutor : IDisposable
    
    private void Handle(BucketCommand command)
    {
+      LogRunningCommand(command.SourceCommand);
+      
       _ = command.SourceCommand.StoreType switch
       {
          StoreTypes.String => _stringStore.Handle(command),

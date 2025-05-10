@@ -40,4 +40,8 @@ global using NetSocketGenerator.CacheQueue.Client.Delegates;
 global using NetSocketGenerator.CacheQueue.Contracts.Messages.Cache.Strings;
 global using NetSocketGenerator.CacheQueue.Contracts.Messages;
 global using NetSocketGenerator.CacheQueue.Contracts.Messages.Cache;
+global using NetSocketGenerator.CacheQueue.Contracts.Messages.Cache.Doubles;
+global using NetSocketGenerator.CacheQueue.Contracts.Messages.Cache.Integers;
+global using NetSocketGenerator.CacheQueue.Contracts.Messages.Cache.Longs;
+global using NetSocketGenerator.CacheQueue.Contracts.Messages.Cache.ULongs;
 
