@@ -26,7 +26,7 @@ public sealed partial class ProcessorGenerator
 
       var groups = GroupByRegistrationGroups(processorInfos);
       
-      cw.WriteLine("public static class ServiceCollectionExtensions");
+      cw.WriteLine("internal static partial class ServiceCollectionExtensions");
       cw.WriteLine($"{{");
       cw.UpIndent();
 
@@ -53,7 +53,7 @@ public sealed partial class ProcessorGenerator
       cw.WriteLine($"}}");
       cw.WriteLine();
       
-      cw.WriteLine("public static class TcpServerClientExtensions");
+      cw.WriteLine("internal static partial class TcpServerClientExtensions");
       cw.WriteLine($"{{");
       cw.UpIndent();
 

@@ -51,6 +51,9 @@ localCacheQueue.Start();
 
 Client creation (auto reconnects)
 ```C#
+// Can totally be used with the ASP.NET Core builder too
+collection.AddCacheQueueClient();
+
 var testClient = new CacheQueueClient(new CacheQueueClientOptions()
 {
    Address = "127.0.0.1",
