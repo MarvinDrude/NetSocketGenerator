@@ -11,6 +11,23 @@
       <ProjectReference Include="..\NetSocketGenerator\NetSocketGenerator.csproj" />
    </ItemGroup>
 
+   <PropertyGroup>
+      <Title>NetSocketGenerator.CacheQueue</Title>
+      <Description>Lightweight library for message queues and key value store.</Description>
+      <Authors>Marvin Drude</Authors>
+      <PackageLicenseExpression>MIT</PackageLicenseExpression>
+      <PackageReadmeFile>README.md</PackageReadmeFile>
+      <PublishRepositoryUrl>true</PublishRepositoryUrl>
+      <RepositoryUrl>https://github.com/MarvinDrude/NetSocketGenerator</RepositoryUrl>
+      <AssemblyVersion>1.0.0.0</AssemblyVersion>
+      <FileVersion>1.0.0.0</FileVersion>
+      <Version>1.0.0.0</Version>
+   </PropertyGroup>
+
+   <ItemGroup>
+      <None Include="..\README.md" Pack="true" PackagePath="\"/>
+   </ItemGroup>
+   
    <ItemGroup>
       <ProjectReference
          Include="..\NetSocketGenerator.GeneratorLib\NetSocketGenerator.GeneratorLib.csproj"
