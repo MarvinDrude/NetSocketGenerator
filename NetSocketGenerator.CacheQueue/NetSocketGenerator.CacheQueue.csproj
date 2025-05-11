@@ -13,7 +13,7 @@
 
    <PropertyGroup>
       <Title>NetSocketGenerator.CacheQueue</Title>
-      <Description>Lightweight library for message queues and key value store.</Description>
+      <Description>Lightweight library for message queues and key value store. (Server)</Description>
       <Authors>Marvin Drude</Authors>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
       <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -47,4 +47,15 @@
       <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.0-preview.3.25171.5" />
    </ItemGroup>
 
+   <ItemGroup>
+      <None Include="..\NetSocketGenerator.GeneratorLib\bin\$(Configuration)\netstandard2.0\NetSocketGenerator.GeneratorLib.dll"
+            Pack="true"
+            PackagePath="analyzers/roslyn4.8/dotnet/cs"
+            Visible="false"/>
+      <None Include="..\NetSocketGenerator.Generator\bin\$(Configuration)\netstandard2.0\NetSocketGenerator.Generator.dll"
+            Pack="true"
+            PackagePath="analyzers/roslyn4.8/dotnet/cs"
+            Visible="false"/>
+   </ItemGroup>
+   
 </Project>
