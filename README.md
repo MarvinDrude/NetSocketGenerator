@@ -28,6 +28,14 @@ Lightweight library for TCP Communication in .NET 10 / C#. Still work in progres
 | NetSocketGenerator | Base fast Tcp Server/Client functionality, including small source generator |
 | NetSocketGenerator.CacheQueue | Simple In-Memory Key-Value Store with Subscribe Queue capability and clustering |
 
+## Nuget
+
+| Project/Package name | Nuget                |
+| :-------- | :------------------------- |
+| NetSocketGenerator | [![Nuget](https://img.shields.io/badge/nuget-0A66C2?style=for-the-badge&logo=nuget&logoColor=white)](https://www.nuget.org/packages/NetSocketGenerator) |
+| NetSocketGenerator.CacheQueue (Server) | [![Nuget](https://img.shields.io/badge/nuget-0A66C2?style=for-the-badge&logo=nuget&logoColor=white)](https://www.nuget.org/packages/NetSocketGenerator.CacheQueue) |
+| NetSocketGenerator.CacheQueue.Client | [![Nuget](https://img.shields.io/badge/nuget-0A66C2?style=for-the-badge&logo=nuget&logoColor=white)](https://www.nuget.org/packages/NetSocketGenerator.CacheQueue.Client) |
+
 ## Bare bones CacheQueue example
 
 Starting a standalone none-cluster CacheQueue Server 
