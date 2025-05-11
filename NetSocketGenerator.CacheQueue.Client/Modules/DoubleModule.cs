@@ -2,6 +2,46 @@
 
 public sealed class DoubleModule(CacheQueueClient client)
 {
+   public Task<double?> Increment(string keyName)
+   {
+      return Add(keyName, 1);
+   }
+   
+   public Task<double?> Decrement(string keyName)
+   {
+      return Add(keyName, -1);
+   }
+   
+   public Task<double?> Subtract(string keyName, double value)
+   {
+      return Add(keyName, -value);
+   }
+   
+   public Task<double?> Add(string keyName, double value)
+   {
+      var command = new AddDoubleCommand()
+      {
+         KeyName = keyName,
+         Value = value,
+         AwaitsAck = true
+      };
+
+      return Add(command);
+   }
+
+   public async Task<double?> Add(AddDoubleCommand command)
+   {
+      command.AwaitsAck = true;
+      
+      var task = client.AckContainer
+         .Enqueue<AddDoubleCommandAck>(command.RequestId, client.Options.ServerAckTimeout);
+      
+      client.Tcp.Send<BaseCommand>(EventNames.Command, command);
+      var result = await task;
+
+      return result?.NewValue;
+   }
+   
    public Task<bool> Delete(string keyName)
    {
       var command = new DeleteCommand()

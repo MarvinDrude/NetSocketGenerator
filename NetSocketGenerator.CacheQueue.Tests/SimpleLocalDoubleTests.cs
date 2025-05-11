@@ -48,4 +48,25 @@ public class SimpleLocalDoubleTests
       
       await Assert.That(valueOne).IsEqualTo(null);
    }
+   
+   [Test, NotInParallel]
+   [ClassDataSource<CacheQueueLocalServerFactory, CacheQueueLocalClientFactory>(Shared = [SharedType.None])]
+   public async Task TestSimpleAddSubtract(
+      CacheQueueLocalServerFactory serverFactory,
+      CacheQueueLocalClientFactory clientFactory)
+   {
+      const string keyOne = "test1";
+      
+      var server = serverFactory.Server;
+      var client = clientFactory.Client;
+
+      server.Start();
+      client.Connect();
+
+      await Assert.That(await client.Doubles.Add(keyOne, 2000d)).IsEqualTo(2000d);
+      await Assert.That(await client.Doubles.Add(keyOne, 2000d)).IsEqualTo(4000d);
+      await Assert.That(await client.Doubles.Subtract(keyOne, 100d)).IsEqualTo(3900d);
+      await Assert.That(await client.Doubles.Increment(keyOne)).IsEqualTo(3901d);
+      await Assert.That(await client.Doubles.Decrement(keyOne)).IsEqualTo(3900d);
+   }
 }

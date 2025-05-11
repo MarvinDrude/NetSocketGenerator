@@ -2,6 +2,46 @@
 
 public sealed class LongModule(CacheQueueClient client)
 {
+   public Task<long?> Increment(string keyName)
+   {
+      return Add(keyName, 1);
+   }
+   
+   public Task<long?> Decrement(string keyName)
+   {
+      return Add(keyName, -1);
+   }
+   
+   public Task<long?> Subtract(string keyName, long value)
+   {
+      return Add(keyName, -value);
+   }
+   
+   public Task<long?> Add(string keyName, long value)
+   {
+      var command = new AddLongCommand()
+      {
+         KeyName = keyName,
+         Value = value,
+         AwaitsAck = true
+      };
+
+      return Add(command);
+   }
+
+   public async Task<long?> Add(AddLongCommand command)
+   {
+      command.AwaitsAck = true;
+      
+      var task = client.AckContainer
+         .Enqueue<AddLongCommandAck>(command.RequestId, client.Options.ServerAckTimeout);
+      
+      client.Tcp.Send<BaseCommand>(EventNames.Command, command);
+      var result = await task;
+
+      return result?.NewValue;
+   }
+   
    public Task<bool> Delete(string keyName)
    {
       var command = new DeleteCommand()

@@ -48,4 +48,25 @@ public sealed class SimpleLocalLongTests
       
       await Assert.That(valueOne).IsEqualTo(null);
    }
+   
+   [Test, NotInParallel]
+   [ClassDataSource<CacheQueueLocalServerFactory, CacheQueueLocalClientFactory>(Shared = [SharedType.None])]
+   public async Task TestSimpleAddSubtract(
+      CacheQueueLocalServerFactory serverFactory,
+      CacheQueueLocalClientFactory clientFactory)
+   {
+      const string keyOne = "test1";
+      
+      var server = serverFactory.Server;
+      var client = clientFactory.Client;
+
+      server.Start();
+      client.Connect();
+
+      await Assert.That(await client.Longs.Add(keyOne, 2000)).IsEqualTo(2000);
+      await Assert.That(await client.Longs.Add(keyOne, 2000)).IsEqualTo(4000);
+      await Assert.That(await client.Longs.Subtract(keyOne, 100)).IsEqualTo(3900);
+      await Assert.That(await client.Longs.Increment(keyOne)).IsEqualTo(3901);
+      await Assert.That(await client.Longs.Decrement(keyOne)).IsEqualTo(3900);
+   }
 }

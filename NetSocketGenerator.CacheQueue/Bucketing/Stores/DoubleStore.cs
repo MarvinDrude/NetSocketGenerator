@@ -17,10 +17,30 @@ public sealed class DoubleStore : IStore
          GetDoubleCommand getCommand => HandleGet(getCommand, command),
          SetDoubleCommand setCommand => HandleSet(setCommand, command),
          DeleteCommand deleteCommand => HandleDelete(deleteCommand, command),
+         AddDoubleCommand addCommand => HandleAdd(addCommand, command),
          _ => false
       };
    }
 
+   private bool HandleAdd(AddDoubleCommand source, BucketCommand bucketCommand)
+   {
+      if (!_store.TryGetValue(source.KeyName, out var value))
+      {
+         value = _store[source.KeyName] = 0d;
+      }
+
+      value += source.Value;
+      _store[source.KeyName] = value;
+      
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new AddDoubleCommandAck()
+      {
+         AckRequestId = source.RequestId,
+         NewValue = value ?? 0d
+      });
+      
+      return true;
+   }
+   
    private bool HandleGet(GetDoubleCommand source, BucketCommand bucketCommand)
    {
       var value = _store.GetValueOrDefault(source.KeyName);

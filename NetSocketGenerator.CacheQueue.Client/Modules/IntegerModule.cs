@@ -2,6 +2,46 @@
 
 public sealed class IntegerModule(CacheQueueClient client)
 {
+   public Task<int?> Increment(string keyName)
+   {
+      return Add(keyName, 1);
+   }
+   
+   public Task<int?> Decrement(string keyName)
+   {
+      return Add(keyName, -1);
+   }
+   
+   public Task<int?> Subtract(string keyName, int value)
+   {
+      return Add(keyName, -value);
+   }
+   
+   public Task<int?> Add(string keyName, int value)
+   {
+      var command = new AddIntegerCommand()
+      {
+         KeyName = keyName,
+         Value = value,
+         AwaitsAck = true
+      };
+
+      return Add(command);
+   }
+
+   public async Task<int?> Add(AddIntegerCommand command)
+   {
+      command.AwaitsAck = true;
+      
+      var task = client.AckContainer
+         .Enqueue<AddIntegerCommandAck>(command.RequestId, client.Options.ServerAckTimeout);
+      
+      client.Tcp.Send<BaseCommand>(EventNames.Command, command);
+      var result = await task;
+
+      return result?.NewValue;
+   }
+   
    public Task<bool> Delete(string keyName)
    {
       var command = new DeleteCommand()

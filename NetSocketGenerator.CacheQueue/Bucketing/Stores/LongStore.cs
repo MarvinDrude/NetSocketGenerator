@@ -17,10 +17,30 @@ public sealed class LongStore : IStore
          GetLongCommand getCommand => HandleGet(getCommand, command),
          SetLongCommand setCommand => HandleSet(setCommand, command),
          DeleteCommand deleteCommand => HandleDelete(deleteCommand, command),
+         AddLongCommand addCommand => HandleAdd(addCommand, command),
          _ => false
       };
    }
 
+   private bool HandleAdd(AddLongCommand source, BucketCommand bucketCommand)
+   {
+      if (!_store.TryGetValue(source.KeyName, out var value))
+      {
+         value = _store[source.KeyName] = 0;
+      }
+
+      value += source.Value;
+      _store[source.KeyName] = value;
+      
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new AddLongCommandAck()
+      {
+         AckRequestId = source.RequestId,
+         NewValue = value ?? 0
+      });
+      
+      return true;
+   }
+   
    private bool HandleGet(GetLongCommand source, BucketCommand bucketCommand)
    {
       var value = _store.GetValueOrDefault(source.KeyName);
