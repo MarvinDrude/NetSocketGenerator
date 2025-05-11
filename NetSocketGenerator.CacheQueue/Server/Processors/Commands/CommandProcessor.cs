@@ -32,6 +32,7 @@ public sealed partial class CommandProcessor
          var bucketCommand = new BucketCommand()
          {
             SourceCommand = command,
+            Id = command.RequestId
          };
          
          bucket.Enqueue(bucketCommand);

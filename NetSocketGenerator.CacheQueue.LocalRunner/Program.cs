@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using NetSocketGenerator.CacheQueue.Client;
 using NetSocketGenerator.CacheQueue.Client.Extensions;
 using NetSocketGenerator.CacheQueue.Configuration.Server;
+using NetSocketGenerator.CacheQueue.Contracts.Messages.Cache.Doubles;
 using NetSocketGenerator.CacheQueue.Extensions;
 using NetSocketGenerator.CacheQueue.Server;
 using Serilog;
@@ -51,19 +52,29 @@ testClient.Connect();
 await Task.Delay(1000);
 //testClient.QueueCreateNoAck("Messages");
 
-const string queueName = "Messages";
+// const string queueName = "Messages";
+//
+// await testClient.Queue.Create(queueName);
+// await testClient.Queue.Subscribe(queueName);
+//
+// await testClient.Queue.Unsubscribe("a");
+// await testClient.Queue.Unsubscribe(queueName);
+//
+// var tt = await testClient.Strings.Set("test", "aaa");
+// await testClient.Strings.Set("test1", "aaa1");
+//
+// Console.WriteLine(await testClient.Strings.Get("test"));
+// Console.WriteLine(await testClient.Strings.Get("test1"));
 
-await testClient.Queue.Create(queueName);
-await testClient.Queue.Subscribe(queueName);
+var batchResult = await testClient
+   .CreateBatch()
+   .Doubles.Set("test", 1)
+   .Integers.Set("test", 2)
+   .Doubles.Increment("test")
+   .Send();
 
-await testClient.Queue.Unsubscribe("a");
-await testClient.Queue.Unsubscribe(queueName);
-
-var tt = await testClient.Strings.Set("test", "aaa");
-await testClient.Strings.Set("test1", "aaa1");
-
-Console.WriteLine(await testClient.Strings.Get("test"));
-Console.WriteLine(await testClient.Strings.Get("test1"));
+var doubleTest = batchResult.GetAck<AddDoubleCommandAck>(2);
+_ = "";
 
 //await testClient.Queue.Unsubscribe(queueName);
 //await testClient.Queue.Delete(queueName);

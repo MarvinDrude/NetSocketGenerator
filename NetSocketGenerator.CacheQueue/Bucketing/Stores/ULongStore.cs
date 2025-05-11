@@ -40,7 +40,7 @@ public sealed class ULongStore : IStore
       
       _store[source.KeyName] = value;
       
-      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new AddULongCommandAck()
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(bucketCommand.Id, new AddULongCommandAck()
       {
          AckRequestId = source.RequestId,
          NewValue = value ?? 0
@@ -52,7 +52,7 @@ public sealed class ULongStore : IStore
    private bool HandleGet(GetULongCommand source, BucketCommand bucketCommand)
    {
       var value = _store.GetValueOrDefault(source.KeyName);
-      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new GetULongCommandAck()
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(bucketCommand.Id, new GetULongCommandAck()
       {
          AckRequestId = source.RequestId,
          Value = value
@@ -64,7 +64,7 @@ public sealed class ULongStore : IStore
    private bool HandleSet(SetULongCommand source, BucketCommand bucketCommand)
    {
       _store[source.KeyName] = source.Value;
-      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new SetULongCommandAck()
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(bucketCommand.Id, new SetULongCommandAck()
       {
          AckRequestId = source.RequestId,
          Value = source.Value
@@ -75,7 +75,7 @@ public sealed class ULongStore : IStore
    
    private bool HandleDelete(DeleteCommand source, BucketCommand bucketCommand)
    {
-      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new DeleteCommandAck()
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(bucketCommand.Id, new DeleteCommandAck()
       {
          AckRequestId = source.RequestId,
          WasFound = _store.Remove(source.KeyName),

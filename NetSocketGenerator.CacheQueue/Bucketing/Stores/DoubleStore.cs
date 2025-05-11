@@ -32,7 +32,7 @@ public sealed class DoubleStore : IStore
       value += source.Value;
       _store[source.KeyName] = value;
       
-      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new AddDoubleCommandAck()
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(bucketCommand.Id, new AddDoubleCommandAck()
       {
          AckRequestId = source.RequestId,
          NewValue = value ?? 0d
@@ -44,7 +44,7 @@ public sealed class DoubleStore : IStore
    private bool HandleGet(GetDoubleCommand source, BucketCommand bucketCommand)
    {
       var value = _store.GetValueOrDefault(source.KeyName);
-      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new GetDoubleCommandAck()
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(bucketCommand.Id, new GetDoubleCommandAck()
       {
          AckRequestId = source.RequestId,
          Value = value
@@ -56,7 +56,7 @@ public sealed class DoubleStore : IStore
    private bool HandleSet(SetDoubleCommand source, BucketCommand bucketCommand)
    {
       _store[source.KeyName] = source.Value;
-      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new SetDoubleCommandAck()
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(bucketCommand.Id, new SetDoubleCommandAck()
       {
          AckRequestId = source.RequestId,
          Value = source.Value
@@ -67,7 +67,7 @@ public sealed class DoubleStore : IStore
    
    private bool HandleDelete(DeleteCommand source, BucketCommand bucketCommand)
    {
-      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new DeleteCommandAck()
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(bucketCommand.Id, new DeleteCommandAck()
       {
          AckRequestId = source.RequestId,
          WasFound = _store.Remove(source.KeyName),

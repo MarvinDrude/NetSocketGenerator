@@ -1,4 +1,5 @@
 ﻿
+using NetSocketGenerator.CacheQueue.Client.Batches;
 using TcpClient = NetSocketGenerator.Tcp.TcpClient;
 
 namespace NetSocketGenerator.CacheQueue.Client;
@@ -67,6 +68,11 @@ public sealed class CacheQueueClient : IAsyncDisposable
    private async Task OnDisconnected(ITcpConnection connection)
    {
       
+   }
+
+   public BatchBuilder CreateBatch()
+   {
+      return new BatchBuilder(this);
    }
 
    public async ValueTask DisposeAsync()

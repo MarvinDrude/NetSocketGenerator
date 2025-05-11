@@ -32,7 +32,7 @@ public sealed class IntegerStore : IStore
       value += source.Value;
       _store[source.KeyName] = value;
       
-      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new AddIntegerCommandAck()
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(bucketCommand.Id, new AddIntegerCommandAck()
       {
          AckRequestId = source.RequestId,
          NewValue = value ?? 0
@@ -44,7 +44,7 @@ public sealed class IntegerStore : IStore
    private bool HandleGet(GetIntegerCommand source, BucketCommand bucketCommand)
    {
       var value = _store.GetValueOrDefault(source.KeyName);
-      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new GetIntegerCommandAck()
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(bucketCommand.Id, new GetIntegerCommandAck()
       {
          AckRequestId = source.RequestId,
          Value = value
@@ -56,7 +56,7 @@ public sealed class IntegerStore : IStore
    private bool HandleSet(SetIntegerCommand source, BucketCommand bucketCommand)
    {
       _store[source.KeyName] = source.Value;
-      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new SetIntegerCommandAck()
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(bucketCommand.Id, new SetIntegerCommandAck()
       {
          AckRequestId = source.RequestId,
          Value = source.Value
@@ -67,7 +67,7 @@ public sealed class IntegerStore : IStore
    
    private bool HandleDelete(DeleteCommand source, BucketCommand bucketCommand)
    {
-      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(source.RequestId, new DeleteCommandAck()
+      _bucketExecutor.Server.AckContainer.TrySetResult<AckMessageBase>(bucketCommand.Id, new DeleteCommandAck()
       {
          AckRequestId = source.RequestId,
          WasFound = _store.Remove(source.KeyName),

@@ -32,6 +32,7 @@ global using NetSocketGenerator.Tcp.Serializers;
 global using NetSocketGenerator.Tcp.Services;
 global using NetSocketGenerator.Attributes;
 global using NetSocketGenerator.Acknowledge;
+global using NetSocketGenerator.Utils;
 
 global using NetSocketGenerator.CacheQueue.Configuration.Server;
 global using NetSocketGenerator.CacheQueue.Serializers;
