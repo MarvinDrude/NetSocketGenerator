@@ -12,14 +12,14 @@ public sealed class IntegerBatchModule(BatchBuilder builder)
       return Add(keyName, -1);
    }
    
-   public BatchBuilder Subtract(string keyName, double value)
+   public BatchBuilder Subtract(string keyName, int value)
    {
       return Add(keyName, -value);
    }
    
-   public BatchBuilder Add(string keyName, double value)
+   public BatchBuilder Add(string keyName, int value)
    {
-      builder.AddCommand(new AddDoubleCommand()
+      builder.AddCommand(new AddIntegerCommand()
       {
          KeyName = keyName,
          Value = value,

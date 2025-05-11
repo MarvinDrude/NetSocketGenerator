@@ -1,4 +1,6 @@
-﻿namespace NetSocketGenerator.CacheQueue.Tests;
+﻿using NetSocketGenerator.CacheQueue.Contracts.Messages.Cache.Longs;
+
+namespace NetSocketGenerator.CacheQueue.Tests;
 
 public sealed class SimpleLocalLongTests
 {
@@ -68,5 +70,31 @@ public sealed class SimpleLocalLongTests
       await Assert.That(await client.Longs.Subtract(keyOne, 100)).IsEqualTo(3900);
       await Assert.That(await client.Longs.Increment(keyOne)).IsEqualTo(3901);
       await Assert.That(await client.Longs.Decrement(keyOne)).IsEqualTo(3900);
+   }
+   
+   [Test, NotInParallel]
+   [ClassDataSource<CacheQueueLocalServerFactory, CacheQueueLocalClientFactory>(Shared = [SharedType.None])]
+   public async Task TestSimpleBatch(
+      CacheQueueLocalServerFactory serverFactory,
+      CacheQueueLocalClientFactory clientFactory)
+   {
+      const string keyOne = "test1";
+      
+      var server = serverFactory.Server;
+      var client = clientFactory.Client;
+
+      server.Start();
+      client.Connect();
+
+      var batch = await client
+         .CreateBatch()
+         .Longs.Set(keyOne, 10)
+         .Longs.Add(keyOne, 5)
+         .Longs.Subtract(keyOne, 2)
+         .Longs.Increment(keyOne)
+         .Longs.Decrement(keyOne)
+         .Send();
+
+      await Assert.That(batch.GetAck<AddLongCommandAck>(4)!.NewValue).IsEqualTo(13);
    }
 }

@@ -1,4 +1,7 @@
-﻿namespace NetSocketGenerator.CacheQueue.Tests;
+﻿using NetSocketGenerator.CacheQueue.Bucketing.Stores;
+using NetSocketGenerator.CacheQueue.Contracts.Messages.Cache.Doubles;
+
+namespace NetSocketGenerator.CacheQueue.Tests;
 
 public class SimpleLocalDoubleTests
 {
@@ -68,5 +71,31 @@ public class SimpleLocalDoubleTests
       await Assert.That(await client.Doubles.Subtract(keyOne, 100d)).IsEqualTo(3900d);
       await Assert.That(await client.Doubles.Increment(keyOne)).IsEqualTo(3901d);
       await Assert.That(await client.Doubles.Decrement(keyOne)).IsEqualTo(3900d);
+   }
+   
+   [Test, NotInParallel]
+   [ClassDataSource<CacheQueueLocalServerFactory, CacheQueueLocalClientFactory>(Shared = [SharedType.None])]
+   public async Task TestSimpleBatch(
+      CacheQueueLocalServerFactory serverFactory,
+      CacheQueueLocalClientFactory clientFactory)
+   {
+      const string keyOne = "test1";
+      
+      var server = serverFactory.Server;
+      var client = clientFactory.Client;
+
+      server.Start();
+      client.Connect();
+
+      var batch = await client
+         .CreateBatch()
+         .Doubles.Set(keyOne, 10d)
+         .Doubles.Add(keyOne, 5d)
+         .Doubles.Subtract(keyOne, 2d)
+         .Doubles.Increment(keyOne)
+         .Doubles.Decrement(keyOne)
+         .Send();
+
+      await Assert.That(batch.GetAck<AddDoubleCommandAck>(4)!.NewValue).IsEqualTo(13);
    }
 }

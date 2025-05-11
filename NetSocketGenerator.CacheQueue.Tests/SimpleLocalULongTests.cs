@@ -1,4 +1,6 @@
-﻿namespace NetSocketGenerator.CacheQueue.Tests;
+﻿using NetSocketGenerator.CacheQueue.Contracts.Messages.Cache.ULongs;
+
+namespace NetSocketGenerator.CacheQueue.Tests;
 
 public sealed class SimpleLocalULongTests
 {
@@ -70,5 +72,31 @@ public sealed class SimpleLocalULongTests
       await Assert.That(await client.ULongs.Decrement(keyOne)).IsEqualTo(3900u);
       
       await Assert.That(await client.ULongs.Subtract(keyOne, 3901)).IsEqualTo(ulong.MaxValue);
+   }
+   
+   [Test, NotInParallel]
+   [ClassDataSource<CacheQueueLocalServerFactory, CacheQueueLocalClientFactory>(Shared = [SharedType.None])]
+   public async Task TestSimpleBatch(
+      CacheQueueLocalServerFactory serverFactory,
+      CacheQueueLocalClientFactory clientFactory)
+   {
+      const string keyOne = "test1";
+      
+      var server = serverFactory.Server;
+      var client = clientFactory.Client;
+
+      server.Start();
+      client.Connect();
+
+      var batch = await client
+         .CreateBatch()
+         .ULongs.Set(keyOne, 10)
+         .ULongs.Add(keyOne, 5)
+         .ULongs.Subtract(keyOne, 2)
+         .ULongs.Increment(keyOne)
+         .ULongs.Decrement(keyOne)
+         .Send();
+
+      await Assert.That(batch.GetAck<AddULongCommandAck>(4)!.NewValue).IsEqualTo(13u);
    }
 }

@@ -1,4 +1,6 @@
-﻿namespace NetSocketGenerator.CacheQueue.Tests;
+﻿using NetSocketGenerator.CacheQueue.Contracts.Messages.Cache.Integers;
+
+namespace NetSocketGenerator.CacheQueue.Tests;
 
 public sealed class SimpleLocalIntegerTests
 {
@@ -68,5 +70,31 @@ public sealed class SimpleLocalIntegerTests
       await Assert.That(await client.Integers.Subtract(keyOne, 100)).IsEqualTo(3900);
       await Assert.That(await client.Integers.Increment(keyOne)).IsEqualTo(3901);
       await Assert.That(await client.Integers.Decrement(keyOne)).IsEqualTo(3900);
+   }
+   
+   [Test, NotInParallel]
+   [ClassDataSource<CacheQueueLocalServerFactory, CacheQueueLocalClientFactory>(Shared = [SharedType.None])]
+   public async Task TestSimpleBatch(
+      CacheQueueLocalServerFactory serverFactory,
+      CacheQueueLocalClientFactory clientFactory)
+   {
+      const string keyOne = "test1";
+      
+      var server = serverFactory.Server;
+      var client = clientFactory.Client;
+
+      server.Start();
+      client.Connect();
+
+      var batch = await client
+         .CreateBatch()
+         .Integers.Set(keyOne, 10)
+         .Integers.Add(keyOne, 5)
+         .Integers.Subtract(keyOne, 2)
+         .Integers.Increment(keyOne)
+         .Integers.Decrement(keyOne)
+         .Send();
+
+      await Assert.That(batch.GetAck<AddIntegerCommandAck>(4)!.NewValue).IsEqualTo(13);
    }
 }

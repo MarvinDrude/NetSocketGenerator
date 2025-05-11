@@ -1,4 +1,6 @@
-﻿namespace NetSocketGenerator.CacheQueue.Tests;
+﻿using NetSocketGenerator.CacheQueue.Contracts.Messages.Cache.Strings;
+
+namespace NetSocketGenerator.CacheQueue.Tests;
 
 public sealed class SimpleLocalStringTests
 {
@@ -47,5 +49,29 @@ public sealed class SimpleLocalStringTests
       var valueOne = await client.Strings.Get(keyOne);
       
       await Assert.That(valueOne).IsEqualTo(null);
+   }
+   
+   [Test, NotInParallel]
+   [ClassDataSource<CacheQueueLocalServerFactory, CacheQueueLocalClientFactory>(Shared = [SharedType.None])]
+   public async Task TestSimpleBatch(
+      CacheQueueLocalServerFactory serverFactory,
+      CacheQueueLocalClientFactory clientFactory)
+   {
+      const string keyOne = "test1";
+      
+      var server = serverFactory.Server;
+      var client = clientFactory.Client;
+
+      server.Start();
+      client.Connect();
+
+      var batch = await client
+         .CreateBatch()
+         .Strings.Set(keyOne, "1")
+         .Strings.Delete(keyOne)
+         .Strings.Set(keyOne, "2")
+         .Send();
+
+      await Assert.That(batch.GetAck<SetStringCommandAck>(2)!.Value).IsEqualTo("2");
    }
 }
