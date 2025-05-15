@@ -16,51 +16,40 @@ public sealed partial class ProcessorGenerator
       var processor = maybeProcessorInfo.Value;
       
       var token = context.CancellationToken;
-      using var cw = new CodeWriter();
+      using var cw = new CodeWriter(token);
 
       token.ThrowIfCancellationRequested();
-      
-      cw.WriteLine("#nullable enable");
-      cw.WriteLine();
-      
-      cw.WriteLine("using System;");
-      cw.WriteLine("using NetSocketGenerator.Events.Delegates;");
-      cw.WriteLine("using NetSocketGenerator.Tcp.Interfaces;");
-      cw.WriteLine("using NetSocketGenerator.Extensions;");
-      
-      if(processor.ClassInfo.NameSpace is { } nameSpace)
-      {
-         cw.WriteLine();
-         cw.WriteLine($"namespace {nameSpace};");
-      }
-      cw.WriteLine();
-      
-      cw.WriteLine(processor.ClassInfo.GetClassString());
-      cw.UpIndent();
-      cw.WriteLine($": ITcpHandler");
-      cw.DownIndent();
-      cw.WriteLine($"{{");
-      cw.UpIndent();
 
-      cw.WriteLine($"public string EventNamePattern {{ get; }} = \"{processor.EventNamePattern}\";");
-      cw.WriteLine();
-      
-      token.ThrowIfCancellationRequested();
-      
-      cw.WriteLine("public ServerFrameMessageHandler GetExecuteMethod(bool isServer)");
-      cw.WriteLine($"{{");
-      cw.UpIndent();
-      
-      cw.WriteLine($"return ExecuteInner;");
-      cw.WriteLine();
+      cw.NameSpace
+         .EnableNullable()
+            .Using("System")
+            .Using("NetSocketGenerator.Events.Delegates")
+            .Using("NetSocketGenerator.Tcp.Interfaces")
+            .Using("NetSocketGenerator.Extensions")
+         .Set(processor.ClassInfo)
+         .ExtraLine()
+         .Done()
+      .Class
+         .Declaration(processor.ClassInfo)
+         .FirstBaseDeclaration("ITcpHandler")
+         .CloseBaseDeclaration()
+         .OpenBody()
+            .WriteLine($"public string EventNamePattern {{ get; }} = \"{processor.EventNamePattern}\";")
+            .WriteLine()
+         .Done()
+      .Method
+         .OpenHeader("public", "ServerFrameMessageHandler", "GetExecuteMethod")
+            .AddFirstParameter("bool", "isServer")
+         .CloseHeader()
+         .OpenBody()
+         .WriteLine("return ExecuteInner;")
+         .WriteLine()
+         .Done();
       
       RenderExecuteInner(cw, processor.MethodInfo, token);
-      
-      cw.DownIndent();
-      cw.WriteLine($"}}");
-      
-      cw.DownIndent();
-      cw.WriteLine($"}}");
+
+      cw.Method.CloseBody();
+      cw.Class.CloseBody();
       
       token.ThrowIfCancellationRequested();
       context.AddSource($"{processor.ClassInfo.NameSpace ?? "Global"}.{processor.ClassInfo.Name}.g.cs", cw.ToString());

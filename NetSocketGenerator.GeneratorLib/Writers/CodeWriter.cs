@@ -5,6 +5,12 @@ public sealed class CodeWriter : IDisposable
 {
    private const string DefaultIndent = "\t";
    private const string DefaultNewLine = "\n";
+   
+   public CancellationToken CancellationToken { get; }
+   
+   public NameSpaceModule NameSpace { get; }
+   public ClassModule Class { get; }
+   public MethodModule Method { get; }
 
    private string Indent { get; set; } = DefaultIndent;
    private string NewLine { get; set; } = DefaultNewLine;
@@ -15,15 +21,21 @@ public sealed class CodeWriter : IDisposable
    private int CurrentLevel { get; set; } = 0;
    private string CurrentLevelString { get; set; } = "";
 
-   public CodeWriter()
+   public CodeWriter(CancellationToken token = default)
    {
+      CancellationToken = token;
+      
       _levelCache = new string[6];
       _levelCache[0] = "";
 
-      for (int e = 1; e < _levelCache.Length; e++)
+      for (var e = 1; e < _levelCache.Length; e++)
       {
          _levelCache[e] = _levelCache[e - 1] + Indent;
       }
+
+      NameSpace = new NameSpaceModule(this);
+      Class = new ClassModule(this);
+      Method = new MethodModule(this);
    }
 
    public void UpIndent()
@@ -72,11 +84,11 @@ public sealed class CodeWriter : IDisposable
       {
          while (content.Length > 0)
          {
-            int newLinePosition = content.IndexOf(NewLine[0]);
+            var newLinePosition = content.IndexOf(NewLine[0]);
 
             if (newLinePosition >= 0)
             {
-               ReadOnlySpan<char> line = content[..newLinePosition];
+               var line = content[..newLinePosition];
 
                WriteIf(!line.IsEmpty, line);
                WriteLine();
@@ -112,6 +124,14 @@ public sealed class CodeWriter : IDisposable
       WriteLine();
    }
 
+   public void WriteLineIf(bool condition)
+   {
+      if (condition)
+      {
+         WriteLine();
+      }
+   }
+   
    public void WriteLineIf(bool condition, string content, bool multiLine = false)
       => WriteLineIf(condition, content.AsSpan(), multiLine);
 
